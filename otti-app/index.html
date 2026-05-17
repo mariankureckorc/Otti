@@ -478,6 +478,94 @@ Object.assign(window, {
   Phone, OttiStatusBar, Mascot, Wordmark, Icon, Btn,
   TabBar, Header, Toggle, Ring, Tap,
 });
+// Otti — sample history data
+// Single source of truth for the History screen. Both the charts AND the
+// headline metrics in screens-daily.jsx must read from this module — no
+// numbers should be hard-coded inside the screen components.
+
+// Pediatric guideline for a 3-year-old. Used as the daily wear target
+// across Day, Week and Month views.
+const DAILY_TARGET_MIN = 780; // 13h
+
+// — Day tab ————————————————————————————————————————————————
+// Today's sessions. Times are 24h "HH:MM". `label` is shown in the
+// session list under the timeline chart.
+const DAY_SESSIONS = [
+  { start: '08:30', end: '12:15', label: 'Nursery & morning' },
+  { start: '13:00', end: '16:30', label: 'Park & lunch' },
+  { start: '17:00', end: '19:00', label: 'Home & wind-down' },
+];
+
+// Visible window for the horizontal timeline.
+const DAY_WINDOW = { start: '06:00', end: '22:00' };
+
+// — Week tab ————————————————————————————————————————————————
+// Minutes per day, oldest → newest. The last value is "today".
+const WEEK_MINUTES = [720, 540, 690, 420, 780, 660, 495];
+
+// Reported change vs prior week, shown as a pill next to the headline.
+// Sample value — no prior-week dataset is modeled here.
+const WEEK_VS_LAST_PCT = 12;
+
+// — Month tab ————————————————————————————————————————————————
+// 30 days, oldest → newest. The last 7 entries match WEEK_MINUTES so
+// the two views stay consistent. The earlier 23 days were designed
+// to produce a realistic spread: a solid first week, one missed day,
+// a patchy stretch, and a strong run before this week's dip.
+const MONTH_MINUTES = [
+  // Days 1–7 — solid start of the month
+  800, 820, 790, 800, 810, 830, 800,
+  // Days 8–14 — one missed day, then catches up
+  0, 820, 810, 790, 850, 820, 810,
+  // Days 15–21 — mixed week, two slips
+  800, 720, 820, 790, 810, 540, 800,
+  // Days 22–23 — strong run before current week
+  820, 820,
+  // Days 24–30 — current week (mirrors WEEK_MINUTES)
+  ...WEEK_MINUTES,
+];
+
+// — Helpers ————————————————————————————————————————————————
+
+// "HH:MM" → minutes since 00:00
+function hhmmToMin(hhmm) {
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + m;
+}
+
+// minutes → "Xh Ym"
+function fmtHm(mins) {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return `${h}h ${m}m`;
+}
+
+const WEEKDAY_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+// Last 7 weekday short names ending today (today is last).
+function weekLabelsEndingToday(today = new Date()) {
+  const todayIdx = (today.getDay() + 6) % 7; // Mon=0 … Sun=6
+  const out = [];
+  for (let i = 6; i >= 0; i--) {
+    out.push(WEEKDAY_SHORT[(todayIdx - i + 7) % 7]);
+  }
+  return out;
+}
+
+// Date label for N days ago, e.g. "17 May".
+function dateLabelDaysAgo(daysAgo, today = new Date()) {
+  const d = new Date(today);
+  d.setDate(d.getDate() - daysAgo);
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+}
+
+Object.assign(window, {
+  DAILY_TARGET_MIN,
+  DAY_SESSIONS, DAY_WINDOW,
+  WEEK_MINUTES, WEEK_VS_LAST_PCT,
+  MONTH_MINUTES,
+  hhmmToMin, fmtHm, weekLabelsEndingToday, dateLabelDaysAgo,
+});
 /* Auth & onboarding — clickable */
 
 // 01 — Splash
@@ -946,18 +1034,10 @@ function ScreenLogSession({ nav }) {
 }
 
 // 08 — History
+// Three tabs, each rendering its own chart and metrics. All numbers come
+// from src/data/sampleHistory.jsx so they can be tweaked in one place.
 function ScreenHistory({ nav }) {
-  const days = [
-    { d: 'Fri', h: 8.2 },
-    { d: 'Sat', h: 9.4 },
-    { d: 'Sun', h: 6.1 },
-    { d: 'Mon', h: 10.2, met: true },
-    { d: 'Tue', h: 9.8 },
-    { d: 'Wed', h: 10.5, met: true },
-    { d: 'Thu', h: 7.2, today: true },
-  ];
-  const maxH = 12;
-  const [seg, setSeg] = React.useState(1);
+  const [seg, setSeg] = React.useState(0);
   return (
     <Phone bg={OTTI.cream}>
       <div style={{ paddingTop: 60, padding: '60px 20px 0' }}>
@@ -979,64 +1059,263 @@ function ScreenHistory({ nav }) {
           ))}
         </div>
 
-        <div style={{ marginTop: 18, background: '#fff', borderRadius: 24, padding: '20px 18px', border: `1px solid ${OTTI.lineSolid}` }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-            <div>
-              <div style={{ fontSize: 12, color: OTTI.ink3, fontWeight: 600 }}>This week's average</div>
-              <div style={{ fontSize: 34, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -1, marginTop: 2 }}>
-                8<span style={{ fontSize: 18, fontWeight: 700 }}>h</span> 47<span style={{ fontSize: 18, fontWeight: 700 }}>m</span>
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 700, color: OTTI.greenDark, background: OTTI.greenSoft, padding: '4px 10px', borderRadius: 12 }}>
-              ↑ 12% vs last
-            </div>
-          </div>
-
-          <div style={{ marginTop: 22, display: 'flex', gap: 6, alignItems: 'flex-end', height: 140 }}>
-            {days.map((d, i) => {
-              const pct = (d.h / maxH) * 100;
-              return (
-                <div key={i} onClick={() => nav('editEntry')} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-                  <div style={{ flex: 1, width: '100%', position: 'relative', display: 'flex', alignItems: 'flex-end' }}>
-                    <div style={{
-                      width: '100%', height: `${pct}%`, borderRadius: 8,
-                      background: d.today ? OTTI.coral : (d.met ? OTTI.green : OTTI.navyTint),
-                      position: 'relative',
-                    }}>
-                      {d.met && (
-                        <div style={{ position: 'absolute', top: -22, left: '50%', transform: 'translateX(-50%)', width: 18, height: 18, borderRadius: 9, background: OTTI.green, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          {Icon.check('#fff', 12)}
-                        </div>
-                      )}
-                    </div>
-                    <div style={{ position: 'absolute', left: '-3px', right: '-3px', bottom: `${(10/maxH)*100}%`, borderTop: `2px dashed ${OTTI.navy}`, opacity: 0.3 }} />
-                  </div>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: d.today ? OTTI.coral : OTTI.ink3 }}>{d.d}</div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div style={{ marginTop: 14, display: 'flex', gap: 16, fontSize: 11, color: OTTI.ink3, fontWeight: 500 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}><div style={{ width: 9, height: 9, borderRadius: 2, background: OTTI.green }} />Goal met</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}><div style={{ width: 9, height: 9, borderRadius: 2, background: OTTI.coral }} />Today</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}><div style={{ width: 12, borderTop: `1.5px dashed ${OTTI.navy}`, opacity: 0.5 }} />10h target</div>
-          </div>
-        </div>
-
-        <div onClick={() => nav('streak')} style={{ marginTop: 14, background: OTTI.sunSoft, borderRadius: 18, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
-          <div style={{ fontSize: 24 }}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill={OTTI.sun}><path d="M12 2c1 4 4 6 4 10a4 4 0 11-8 0c0-1.5 1-2.5 1-4-1 0-2-1-2-3 2-1 4-2 5-3z"/></svg>
-          </div>
-          <div style={{ flex: 1, fontSize: 14, color: OTTI.navyDeep, lineHeight: 1.4 }}>
-            <strong>3-day streak</strong> of hitting Mia's daily goal.
-          </div>
-          {Icon.chev(OTTI.navy)}
-        </div>
+        {seg === 0 && <HistoryDayView nav={nav} />}
+        {seg === 1 && <HistoryWeekView nav={nav} />}
+        {seg === 2 && <HistoryMonthView nav={nav} />}
       </div>
       <div style={{ height: 100 }} />
       <TabBar active="history" nav={nav} />
     </Phone>
+  );
+}
+
+// — Day tab — horizontal timeline of today's sessions ————————————
+function HistoryDayView({ nav }) {
+  const winStart = hhmmToMin(DAY_WINDOW.start);
+  const winEnd = hhmmToMin(DAY_WINDOW.end);
+  const span = winEnd - winStart;
+
+  const totalMin = DAY_SESSIONS.reduce((acc, s) => acc + (hhmmToMin(s.end) - hhmmToMin(s.start)), 0);
+  const pct = Math.round((totalMin / DAILY_TARGET_MIN) * 100);
+
+  const tickStrings = ['06:00', '10:00', '14:00', '18:00', '22:00'];
+
+  return (
+    <>
+      <div style={{ marginTop: 18, background: '#fff', borderRadius: 24, padding: '20px 18px', border: `1px solid ${OTTI.lineSolid}` }}>
+        <div style={{ fontSize: 12, color: OTTI.ink3, fontWeight: 600 }}>Today</div>
+        <div style={{ fontSize: 34, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -1, marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>
+          {fmtHm(totalMin)}
+        </div>
+        <div style={{ fontSize: 12, color: OTTI.ink3, marginTop: 2 }}>
+          of {fmtHm(DAILY_TARGET_MIN)} target · <span style={{ color: OTTI.greenDark, fontWeight: 700 }}>{pct}%</span>
+        </div>
+
+        {/* Timeline */}
+        <div style={{ marginTop: 22, position: 'relative', height: 60 }}>
+          <div aria-label="Empty timeline track" style={{
+            position: 'absolute', top: 18, left: 0, right: 0, height: 24,
+            borderRadius: 12, background: OTTI.navyTint,
+          }} />
+          {DAY_SESSIONS.map((s, i) => {
+            const left = ((hhmmToMin(s.start) - winStart) / span) * 100;
+            const width = ((hhmmToMin(s.end) - hhmmToMin(s.start)) / span) * 100;
+            return (
+              <div key={i} aria-label={`Session ${s.start} to ${s.end}`} style={{
+                position: 'absolute', top: 18, height: 24,
+                left: `${left}%`, width: `${width}%`,
+                background: OTTI.green, borderRadius: 12,
+              }} />
+            );
+          })}
+          <div style={{ position: 'absolute', top: 48, left: 0, right: 0, display: 'flex', justifyContent: 'space-between' }}>
+            {tickStrings.map(t => (
+              <div key={t} style={{ fontSize: 10, color: OTTI.ink3, fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{t}</div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ marginTop: 14, display: 'flex', gap: 16, fontSize: 11, color: OTTI.ink3, fontWeight: 500 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <div style={{ width: 9, height: 9, borderRadius: 2, background: OTTI.green }} />
+            Wear session
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <div style={{ width: 9, height: 9, borderRadius: 2, background: OTTI.navyTint }} />
+            Processors off
+          </div>
+        </div>
+      </div>
+
+      {/* Session list */}
+      <div style={{ marginTop: 14, fontSize: 12, fontWeight: 700, color: OTTI.ink3, letterSpacing: 0.6, textTransform: 'uppercase', padding: '0 4px' }}>
+        Today's sessions · {DAY_SESSIONS.length}
+      </div>
+      <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {DAY_SESSIONS.map((s, i) => {
+          const dur = hhmmToMin(s.end) - hhmmToMin(s.start);
+          return (
+            <div key={i} onClick={() => nav('editEntry')} style={{
+              display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 14, padding: '10px 14px',
+              border: `1px solid ${OTTI.lineSolid}`, cursor: 'pointer',
+            }}>
+              <div style={{ width: 4, height: 34, borderRadius: 2, background: OTTI.green, marginRight: 12 }} />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: OTTI.ink, fontVariantNumeric: 'tabular-nums' }}>{s.start} – {s.end}</div>
+                <div style={{ fontSize: 12, color: OTTI.ink3, marginTop: 1 }}>{s.label}</div>
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: OTTI.navyDeep, fontVariantNumeric: 'tabular-nums' }}>{fmtHm(dur)}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      <InsightCallout text="Mia is on track today — keep going!" />
+    </>
+  );
+}
+
+// — Week tab — 7 vertical bars + target line ————————————
+function HistoryWeekView({ nav }) {
+  const labels = weekLabelsEndingToday();
+  const totalMin = WEEK_MINUTES.reduce((a, b) => a + b, 0);
+  const avg = Math.round(totalMin / WEEK_MINUTES.length);
+  const maxScale = Math.max(DAILY_TARGET_MIN, ...WEEK_MINUTES) * 1.15;
+
+  return (
+    <>
+      <div style={{ marginTop: 18, background: '#fff', borderRadius: 24, padding: '20px 18px', border: `1px solid ${OTTI.lineSolid}` }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ fontSize: 12, color: OTTI.ink3, fontWeight: 600 }}>This week's average</div>
+            <div style={{ fontSize: 34, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -1, marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>
+              {fmtHm(avg)}
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 700, color: OTTI.greenDark, background: OTTI.greenSoft, padding: '4px 10px', borderRadius: 12 }}>
+            ↑ {WEEK_VS_LAST_PCT}% vs last
+          </div>
+        </div>
+
+        <div style={{ marginTop: 22, display: 'flex', gap: 6, alignItems: 'flex-end', height: 140 }}>
+          {WEEK_MINUTES.map((m, i) => {
+            const isToday = i === WEEK_MINUTES.length - 1;
+            const met = m >= DAILY_TARGET_MIN;
+            const pct = (m / maxScale) * 100;
+            return (
+              <div key={i} onClick={() => nav('editEntry')} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                <div style={{ flex: 1, width: '100%', position: 'relative', display: 'flex', alignItems: 'flex-end' }}>
+                  <div style={{
+                    width: '100%', height: `${pct}%`, borderRadius: 8,
+                    background: isToday ? OTTI.coral : (met ? OTTI.green : OTTI.navyTint),
+                    position: 'relative',
+                  }}>
+                    {met && (
+                      <div style={{ position: 'absolute', top: -22, left: '50%', transform: 'translateX(-50%)', width: 18, height: 18, borderRadius: 9, background: OTTI.green, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {Icon.check('#fff', 12)}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ position: 'absolute', left: -3, right: -3, bottom: `${(DAILY_TARGET_MIN/maxScale)*100}%`, borderTop: `2px dashed ${OTTI.navy}`, opacity: 0.3 }} />
+                </div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: isToday ? OTTI.coral : OTTI.ink3 }}>{labels[i]}</div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ marginTop: 14, display: 'flex', gap: 16, fontSize: 11, color: OTTI.ink3, fontWeight: 500, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}><div style={{ width: 9, height: 9, borderRadius: 2, background: OTTI.green }} />Goal met</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}><div style={{ width: 9, height: 9, borderRadius: 2, background: OTTI.coral }} />Today</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}><div style={{ width: 12, borderTop: `1.5px dashed ${OTTI.navy}`, opacity: 0.5 }} />{fmtHm(DAILY_TARGET_MIN)} target</div>
+        </div>
+      </div>
+
+      <InsightCallout text={<><strong>3-day streak</strong> of hitting Mia's daily goal.</>} onClick={() => nav('streak')} />
+    </>
+  );
+}
+
+// — Month tab — 30 thin bars + target line ————————————
+function HistoryMonthView({ nav }) {
+  const data = MONTH_MINUTES;
+  const total = data.reduce((a, b) => a + b, 0);
+  const avg = Math.round(total / data.length);
+  const goalCount = data.filter(m => m >= DAILY_TARGET_MIN).length;
+  const maxScale = Math.max(DAILY_TARGET_MIN, ...data) * 1.15;
+
+  // 5 evenly-spaced x-axis ticks across 30 bars. Labels are dates.
+  const tickIndices = [0, 7, 14, 21, 29];
+
+  return (
+    <>
+      <div style={{ marginTop: 18, background: '#fff', borderRadius: 24, padding: '20px 18px', border: `1px solid ${OTTI.lineSolid}` }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
+          <div>
+            <div style={{ fontSize: 12, color: OTTI.ink3, fontWeight: 600 }}>30-day average</div>
+            <div style={{ fontSize: 34, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -1, marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>
+              {fmtHm(avg)}
+            </div>
+          </div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: OTTI.greenDark, background: OTTI.greenSoft, padding: '4px 10px', borderRadius: 12, whiteSpace: 'nowrap' }}>
+            {goalCount} of {data.length} days at goal
+          </div>
+        </div>
+
+        {/* Chart */}
+        <div style={{ marginTop: 22, position: 'relative', height: 140 }}>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', gap: 2, alignItems: 'flex-end' }}>
+            {data.map((m, i) => {
+              const met = m >= DAILY_TARGET_MIN;
+              const missed = m === 0;
+              const pct = (m / maxScale) * 100;
+              return (
+                <div key={i} aria-label={`Day ${i + 1}: ${fmtHm(m)}`} style={{
+                  flex: 1,
+                  height: missed ? 4 : `${pct}%`,
+                  minHeight: missed ? 4 : 2,
+                  borderRadius: 2,
+                  background: missed ? OTTI.coral : (met ? OTTI.green : OTTI.navyTint),
+                  opacity: missed ? 0.6 : 1,
+                }} />
+              );
+            })}
+          </div>
+          {/* Target line */}
+          <div style={{
+            position: 'absolute', left: 0, right: 0,
+            bottom: `${(DAILY_TARGET_MIN/maxScale)*100}%`,
+            borderTop: `2px dashed ${OTTI.navy}`, opacity: 0.3,
+          }} />
+        </div>
+
+        {/* Date axis */}
+        <div style={{ marginTop: 8, position: 'relative', height: 16 }}>
+          {tickIndices.map(idx => {
+            const daysAgo = data.length - 1 - idx;
+            const isFirst = idx === tickIndices[0];
+            const isLast = idx === tickIndices[tickIndices.length - 1];
+            return (
+              <div key={idx} style={{
+                position: 'absolute',
+                left: `${(idx / (data.length - 1)) * 100}%`,
+                transform: isFirst ? 'translateX(0)' : isLast ? 'translateX(-100%)' : 'translateX(-50%)',
+                fontSize: 10, color: OTTI.ink3, fontWeight: 600,
+                fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap',
+              }}>
+                {daysAgo === 0 ? 'Today' : dateLabelDaysAgo(daysAgo)}
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ marginTop: 14, display: 'flex', gap: 12, fontSize: 11, color: OTTI.ink3, fontWeight: 500, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}><div style={{ width: 9, height: 9, borderRadius: 2, background: OTTI.green }} />Goal met</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}><div style={{ width: 9, height: 9, borderRadius: 2, background: OTTI.navyTint }} />Below goal</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}><div style={{ width: 9, height: 9, borderRadius: 2, background: OTTI.coral, opacity: 0.6 }} />Missed</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}><div style={{ width: 12, borderTop: `1.5px dashed ${OTTI.navy}`, opacity: 0.5 }} />{fmtHm(DAILY_TARGET_MIN)} target</div>
+        </div>
+      </div>
+
+      <InsightCallout text={`Mia hit her goal on ${goalCount} of the last ${data.length} days.`} />
+    </>
+  );
+}
+
+// — Insight callout — shared across tabs ————————————
+function InsightCallout({ text, onClick }) {
+  return (
+    <div onClick={onClick} style={{
+      marginTop: 14, background: OTTI.sunSoft, borderRadius: 18, padding: '12px 16px',
+      display: 'flex', alignItems: 'center', gap: 12,
+      cursor: onClick ? 'pointer' : 'default',
+    }}>
+      <svg width="32" height="32" viewBox="0 0 24 24" fill={OTTI.sun}>
+        <path d="M12 2c1 4 4 6 4 10a4 4 0 11-8 0c0-1.5 1-2.5 1-4-1 0-2-1-2-3 2-1 4-2 5-3z"/>
+      </svg>
+      <div style={{ flex: 1, fontSize: 14, color: OTTI.navyDeep, lineHeight: 1.4 }}>{text}</div>
+      {onClick && Icon.chev(OTTI.navy)}
+    </div>
   );
 }
 
