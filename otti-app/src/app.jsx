@@ -1,5 +1,6 @@
 // Otti — clickable prototype.
-// Single phone frame, state-driven navigation between 25 screens.
+// Single phone frame, state-driven navigation between 23 screens.
+// Community is a single handoff page; no in-app forum or post composer.
 
 const SCREEN_REGISTRY = [
   { id: 'splash',           label: '01 · Splash',                 group: 'Auth & onboarding',  C: ScreenSplash },
@@ -16,23 +17,21 @@ const SCREEN_REGISTRY = [
   { id: 'notifPermission',  label: '10 · Notification permission', group: 'Reminders',         C: ScreenNotifPermission },
   { id: 'reminderSettings', label: '11 · Reminder settings',      group: 'Reminders',          C: ScreenReminderSettings },
 
-  { id: 'forum',            label: '12 · Forum landing',          group: 'Community',          C: ScreenForum },
-  { id: 'thread',           label: '13 · Thread view',            group: 'Community',          C: ScreenThread },
-  { id: 'newPost',          label: '14 · New post',               group: 'Community',          C: ScreenNewPost },
+  { id: 'forum',            label: '12 · Community (Hearing First)', group: 'Community',       C: ScreenForum },
 
-  { id: 'articleList',      label: '15 · Article list',           group: 'Articles',           C: ScreenArticleList },
-  { id: 'articleDetail',    label: '16 · Article detail',         group: 'Articles',           C: ScreenArticleDetail },
+  { id: 'articleList',      label: '13 · Article list',           group: 'Articles',           C: ScreenArticleList },
+  { id: 'articleDetail',    label: '14 · Article detail',         group: 'Articles',           C: ScreenArticleDetail },
 
-  { id: 'profile',          label: '17 · Profile & settings',     group: 'Account',            C: ScreenProfile },
-  { id: 'notifPrefs',       label: '18 · Notification prefs',     group: 'Account',            C: ScreenNotifPrefs },
-  { id: 'privacy',          label: '19 · Privacy & consent',      group: 'Account',            C: ScreenPrivacy },
-  { id: 'manageParent',     label: '20 · Manage co-parent',       group: 'Account',            C: ScreenManageParent },
-  { id: 'about',            label: '21 · About / version',        group: 'Account',            C: ScreenAbout },
-  { id: 'signOut',          label: '22 · Sign out',               group: 'Account',            C: ScreenSignOut },
+  { id: 'profile',          label: '15 · Profile & settings',     group: 'Account',            C: ScreenProfile },
+  { id: 'notifPrefs',       label: '16 · Notification prefs',     group: 'Account',            C: ScreenNotifPrefs },
+  { id: 'privacy',          label: '17 · Privacy & consent',      group: 'Account',            C: ScreenPrivacy },
+  { id: 'manageParent',     label: '18 · Manage co-parent',       group: 'Account',            C: ScreenManageParent },
+  { id: 'about',            label: '19 · About / version',        group: 'Account',            C: ScreenAbout },
+  { id: 'signOut',          label: '20 · Sign out',               group: 'Account',            C: ScreenSignOut },
 
-  { id: 'emptyHistory',     label: '23 · Empty history',          group: 'Mascot moments',     C: ScreenEmptyHistory },
-  { id: 'targetMet',        label: '24 · Daily target met',       group: 'Mascot moments',     C: ScreenTargetMet },
-  { id: 'streak',           label: '25 · First-week streak',      group: 'Mascot moments',     C: ScreenStreak },
+  { id: 'emptyHistory',     label: '21 · Empty history',          group: 'Mascot moments',     C: ScreenEmptyHistory },
+  { id: 'targetMet',        label: '22 · Daily target met',       group: 'Mascot moments',     C: ScreenTargetMet },
+  { id: 'streak',           label: '23 · First-week streak',      group: 'Mascot moments',     C: ScreenStreak },
 ];
 
 const SCREEN_MAP = Object.fromEntries(SCREEN_REGISTRY.map(s => [s.id, s]));

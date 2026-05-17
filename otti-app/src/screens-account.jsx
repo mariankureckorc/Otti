@@ -99,10 +99,8 @@ function ScreenNotifPrefs({ nav }) {
       { l: 'Weekly milestones',      d: 'First week, longest streak, etc.', on: true },
       { l: 'Weekly summary',         d: 'Sundays at 7pm',                  on: true },
     ]},
-    { sec: 'Community', items: [
-      { l: 'Replies to your posts',  d: '', on: true },
-      { l: 'New SJID announcements', d: '', on: true },
-      { l: 'Trending threads',       d: '', on: false },
+    { sec: 'From SJID', items: [
+      { l: 'New SJID announcements', d: 'Service updates and important notes', on: true },
     ]},
   ];
   return (
