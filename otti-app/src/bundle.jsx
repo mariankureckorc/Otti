@@ -1,0 +1,2270 @@
+// iOS 26 (Liquid Glass) device frame — used by Phone.
+// Exports: IOSDevice (the bezel + dynamic island + home indicator).
+
+function IOSDevice({ children, width = 390, height = 844, dark = false }) {
+  return (
+    <div style={{
+      width, height, borderRadius: 48, overflow: 'hidden',
+      position: 'relative', background: dark ? '#000' : '#F2F2F7',
+      boxShadow: '0 40px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.12)',
+      fontFamily: '-apple-system, system-ui, sans-serif',
+      WebkitFontSmoothing: 'antialiased',
+    }}>
+      {/* dynamic island */}
+      <div style={{
+        position: 'absolute', top: 11, left: '50%', transform: 'translateX(-50%)',
+        width: 126, height: 37, borderRadius: 24, background: '#000', zIndex: 50,
+      }} />
+
+      {/* screen content */}
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1, overflow: 'auto', position: 'relative' }}>{children}</div>
+      </div>
+
+      {/* home indicator — always on top */}
+      <div style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 60,
+        height: 34, display: 'flex', justifyContent: 'center', alignItems: 'flex-end',
+        paddingBottom: 8, pointerEvents: 'none',
+      }}>
+        <div style={{
+          width: 139, height: 5, borderRadius: 100,
+          background: dark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.25)',
+        }} />
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { IOSDevice });
+/*
+ * Otti — design tokens + shared atomic components.
+ * Ported from the design handoff; palette derived from the supplied logo.
+ */
+
+const OTTI = {
+  navy:        '#163A78',
+  navyDeep:    '#0C2150',
+  navySoft:    '#273D7A',
+  navyMid:     '#1F4F9D',
+  navyTint:    '#E9EFFA',
+  navyWash:    '#F2F5FB',
+  green:       '#A8C83C',
+  greenDark:   '#8DAD2A',
+  greenSoft:   '#E9F1C9',
+  cream:       '#FBF7EE',
+  creamDeep:   '#F2EBDA',
+  coral:       '#F5907A',
+  coralSoft:   '#FCDFD6',
+  sun:         '#F5C557',
+  sunSoft:     '#FCEDC6',
+  ink:         '#171B2A',
+  ink2:        '#4A5165',
+  ink3:        '#8A92A6',
+  ink4:        '#B7BCCC',
+  line:        'rgba(22,58,120,0.08)',
+  lineSolid:   '#E5E9F2',
+  card:        '#FFFFFF',
+};
+
+const SANS = "'Plus Jakarta Sans', -apple-system, system-ui, sans-serif";
+
+// ─────────────────────────────────────────────────────────────
+// Phone — iOS bezel + status bar wrapper
+// Every screen renders inside this.
+// ─────────────────────────────────────────────────────────────
+function Phone({ children, bg = OTTI.cream, dark = false, time = '8:24', noStatus = false }) {
+  return (
+    <IOSDevice width={390} height={844} dark={dark}>
+      <div style={{
+        position: 'absolute', inset: 0, background: bg, overflow: 'hidden',
+        fontFamily: SANS, color: OTTI.ink,
+      }}>
+        {!noStatus && (
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 30 }}>
+            <OttiStatusBar dark={dark} time={time} />
+          </div>
+        )}
+        {children}
+      </div>
+    </IOSDevice>
+  );
+}
+
+function OttiStatusBar({ dark, time = '8:24' }) {
+  const c = dark ? '#fff' : OTTI.ink;
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '18px 32px 8px', height: 54, boxSizing: 'border-box',
+    }}>
+      <span style={{
+        fontFamily: '-apple-system, "SF Pro", system-ui', fontWeight: 600,
+        fontSize: 16, color: c, letterSpacing: 0.2,
+      }}>{time}</span>
+      <div style={{ width: 100 }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <svg width="17" height="11" viewBox="0 0 17 11"><path d="M0.5 9.8h1.2v-1H0.5zM3.8 8.5h1.2v-2.3H3.8zM7.1 6.5h1.2V4.2H7.1zM10.4 4h1.2V1.7H10.4zM13.7 1.5h1.2V-0.8H13.7z" fill={c}/></svg>
+        <svg width="15" height="11" viewBox="0 0 15 11"><path d="M7.5 2C9.6 2 11.5 2.8 12.9 4.1l-1 1c-1.1-1-2.6-1.6-4.4-1.6S4.2 4.1 3.1 5.1l-1-1C3.5 2.8 5.4 2 7.5 2zm0 3.2c1.3 0 2.4 0.5 3.3 1.3l-1 1c-0.6-0.6-1.4-0.9-2.3-0.9s-1.7 0.3-2.3 0.9l-1-1c0.9-0.8 2-1.3 3.3-1.3zm0 2.9a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6z" fill={c}/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12">
+          <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke={c} strokeOpacity="0.4" fill="none"/>
+          <rect x="2" y="2" width="18" height="8" rx="1.5" fill={c}/>
+          <rect x="22.5" y="3.8" width="1.5" height="4.4" rx="0.6" fill={c} fillOpacity="0.5"/>
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Mascot — inlined from the supplied SVG (no redrawing, no fetch).
+// Renders directly so it can never 404 regardless of how the page is served.
+// ─────────────────────────────────────────────────────────────
+function Mascot({ size = 72, style = {} }) {
+  const h = size * (367 / 410);
+  return (
+    <svg width={size} height={h} viewBox="0 0 410 367" fill="none"
+         xmlns="http://www.w3.org/2000/svg"
+         style={{ display: 'block', ...style }} aria-label="Otti mascot">
+      <path opacity="0.12" d="M204.482 366.216C286.358 366.216 352.732 360.241 352.732 352.872C352.732 345.502 286.358 339.528 204.482 339.528C122.606 339.528 56.2324 345.502 56.2324 352.872C56.2324 360.241 122.606 366.216 204.482 366.216Z" fill="#14213A"/>
+      <path d="M69.0869 170.012L15.5093 187.422C6.94375 190.205 2.25616 199.406 5.03928 207.973C7.8224 216.539 17.0223 221.227 25.5879 218.444L79.1655 201.034C87.731 198.25 92.4186 189.049 89.6355 180.483C86.8524 171.916 77.6525 167.228 69.0869 170.012Z" fill="#163A78"/>
+      <path d="M393.455 187.422L339.877 170.012C331.311 167.228 322.112 171.916 319.328 180.483C316.545 189.049 321.233 198.25 329.798 201.034L383.376 218.444C391.942 221.227 401.142 216.539 403.925 207.973C406.708 199.406 402.02 190.205 393.455 187.422Z" fill="#163A78"/>
+      <path d="M180.762 314.323H124.427C116.24 314.323 109.602 320.961 109.602 329.149C109.602 337.338 116.24 343.976 124.427 343.976H180.762C188.95 343.976 195.587 337.338 195.587 329.149C195.587 320.961 188.95 314.323 180.762 314.323Z" fill="#0C2150"/>
+      <path d="M284.537 314.323H228.202C220.014 314.323 213.377 320.961 213.377 329.149C213.377 337.338 220.014 343.976 228.202 343.976H284.537C292.724 343.976 299.362 337.338 299.362 329.149C299.362 320.961 292.724 314.323 284.537 314.323Z" fill="#0C2150"/>
+      <path d="M251.922 0H157.042C101.366 0 56.2324 45.1389 56.2324 100.821V225.364C56.2324 281.045 101.366 326.184 157.042 326.184H251.922C307.598 326.184 352.732 281.045 352.732 225.364V100.821C352.732 45.1389 307.598 0 251.922 0Z" fill="#163A78"/>
+      <path opacity="0.6" d="M216.342 148.265H192.622C151.684 148.265 118.497 181.456 118.497 222.398C118.497 263.34 151.684 296.531 192.622 296.531H216.342C257.28 296.531 290.467 263.34 290.467 222.398C290.467 181.456 257.28 148.265 216.342 148.265Z" fill="#1F4F9D"/>
+      <path d="M348.284 123.06H343.836V155.679H348.284V123.06Z" fill="#A8C83C"/>
+      <path d="M354.214 154.196H342.354C339.898 154.196 337.907 156.187 337.907 158.644V170.505C337.907 172.962 339.898 174.953 342.354 174.953H354.214C356.67 174.953 358.662 172.962 358.662 170.505V158.644C358.662 156.187 356.67 154.196 354.214 154.196Z" fill="#A8C83C"/>
+      <path opacity="0.65" d="M136.287 176.436C146.112 176.436 154.077 171.789 154.077 166.057C154.077 160.325 146.112 155.679 136.287 155.679C126.462 155.679 118.497 160.325 118.497 166.057C118.497 171.789 126.462 176.436 136.287 176.436Z" fill="#A8C83C"/>
+      <path opacity="0.65" d="M272.677 176.436C282.502 176.436 290.467 171.789 290.467 166.057C290.467 160.325 282.502 155.679 272.677 155.679C262.852 155.679 254.887 160.325 254.887 166.057C254.887 171.789 262.852 176.436 272.677 176.436Z" fill="#A8C83C"/>
+      <path d="M170.384 97.8551C170.384 88.8478 163.083 81.5459 154.077 81.5459C145.071 81.5459 137.77 88.8478 137.77 97.8551V112.682C137.77 121.689 145.071 128.991 154.077 128.991C163.083 128.991 170.384 121.689 170.384 112.682V97.8551Z" fill="white"/>
+      <path d="M271.194 97.8551C271.194 88.8478 263.893 81.5459 254.887 81.5459C245.881 81.5459 238.58 88.8478 238.58 97.8551V112.682C238.58 121.689 245.881 128.991 254.887 128.991C263.893 128.991 271.194 121.689 271.194 112.682V97.8551Z" fill="white"/>
+      <path d="M154.077 111.199C158.171 111.199 161.49 107.88 161.49 103.786C161.49 99.6916 158.171 96.3726 154.077 96.3726C149.983 96.3726 146.665 99.6916 146.665 103.786C146.665 107.88 149.983 111.199 154.077 111.199Z" fill="#0C2150"/>
+      <path d="M254.887 111.199C258.98 111.199 262.299 107.88 262.299 103.786C262.299 99.6916 258.98 96.3726 254.887 96.3726C250.793 96.3726 247.474 99.6916 247.474 103.786C247.474 107.88 250.793 111.199 254.887 111.199Z" fill="#0C2150"/>
+      <path d="M186.692 170.505C198.552 179.401 210.412 179.401 222.272 170.505" stroke="white" strokeWidth="8" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+function Wordmark({ height = 38, style = {}, light = false }) {
+  const letters = light ? '#FFFFFF' : '#273D7A';
+  const dot = '#A8C83C';
+  return (
+    <svg height={height} width={height * (350 / 160)} viewBox="495 110 350 160" fill="none" style={{ display: 'block', ...style }} aria-label="Otti">
+      <path d="M740.595 153.525H787.758C790.942 153.525 793.595 154.586 795.718 156.709C797.84 158.832 798.902 161.485 798.902 164.669C798.902 167.72 797.84 170.307 795.718 172.43C793.595 174.42 790.942 175.415 787.758 175.415H740.595C737.411 175.415 734.757 174.354 732.635 172.231C730.512 170.108 729.451 167.455 729.451 164.271C729.451 161.22 730.512 158.699 732.635 156.709C734.757 154.586 737.411 153.525 740.595 153.525ZM761.888 128.65C765.337 128.65 768.123 129.844 770.246 132.232C772.501 134.487 773.629 137.34 773.629 140.789V229.344C773.629 231.201 773.96 232.727 774.624 233.921C775.42 235.115 776.415 235.977 777.609 236.508C778.935 237.039 780.328 237.304 781.788 237.304C783.38 237.304 784.839 237.039 786.166 236.508C787.492 235.845 789.018 235.513 790.743 235.513C792.6 235.513 794.258 236.375 795.718 238.1C797.31 239.825 798.106 242.213 798.106 245.264C798.106 248.979 796.049 252.03 791.937 254.418C787.957 256.806 783.645 258 779.002 258C776.216 258 773.098 257.801 769.649 257.403C766.332 256.872 763.148 255.745 760.097 254.02C757.178 252.163 754.724 249.377 752.734 245.662C750.744 241.947 749.749 236.84 749.749 230.339V140.789C749.749 137.34 750.876 134.487 753.132 132.232C755.52 129.844 758.438 128.65 761.888 128.65Z" fill={letters}/>
+      <path d="M659.168 153.525H706.331C709.515 153.525 712.168 154.586 714.291 156.709C716.414 158.832 717.475 161.485 717.475 164.669C717.475 167.72 716.414 170.307 714.291 172.43C712.168 174.42 709.515 175.415 706.331 175.415H659.168C655.984 175.415 653.331 174.354 651.208 172.231C649.085 170.108 648.024 167.455 648.024 164.271C648.024 161.22 649.085 158.699 651.208 156.709C653.331 154.586 655.984 153.525 659.168 153.525ZM680.461 128.65C683.91 128.65 686.696 129.844 688.819 132.232C691.074 134.487 692.202 137.34 692.202 140.789V229.344C692.202 231.201 692.534 232.727 693.197 233.921C693.993 235.115 694.988 235.977 696.182 236.508C697.509 237.039 698.902 237.304 700.361 237.304C701.953 237.304 703.412 237.039 704.739 236.508C706.066 235.845 707.591 235.513 709.316 235.513C711.173 235.513 712.832 236.375 714.291 238.1C715.883 239.825 716.679 242.213 716.679 245.264C716.679 248.979 714.623 252.03 710.51 254.418C706.53 256.806 702.218 258 697.575 258C694.789 258 691.671 257.801 688.222 257.403C684.905 256.872 681.721 255.745 678.67 254.02C675.751 252.163 673.297 249.377 671.307 245.662C669.317 241.947 668.322 236.84 668.322 230.339V140.789C668.322 137.34 669.45 134.487 671.705 132.232C674.093 129.844 677.012 128.65 680.461 128.65Z" fill={letters}/>
+      <path d="M637.121 188.35C637.121 198.3 635.463 207.587 632.146 216.21C628.829 224.833 624.12 232.462 618.017 239.095C612.047 245.596 604.883 250.703 596.525 254.418C588.3 258.133 579.278 259.99 569.461 259.99C559.644 259.99 550.622 258.133 542.397 254.418C534.172 250.703 527.008 245.596 520.905 239.095C514.935 232.462 510.292 224.833 506.975 216.21C503.658 207.587 502 198.3 502 188.35C502 178.4 503.658 169.113 506.975 160.49C510.292 151.867 514.935 144.305 520.905 137.804C527.008 131.171 534.172 125.997 542.397 122.282C550.622 118.567 559.644 116.71 569.461 116.71C579.278 116.71 588.3 118.567 596.525 122.282C604.883 125.997 612.047 131.171 618.017 137.804C624.12 144.305 628.829 151.867 632.146 160.49C635.463 169.113 637.121 178.4 637.121 188.35ZM611.251 188.35C611.251 179.461 609.46 171.435 605.878 164.271C602.296 156.974 597.387 151.203 591.152 146.958C584.917 142.713 577.686 140.59 569.461 140.59C561.236 140.59 554.005 142.713 547.77 146.958C541.535 151.203 536.626 156.908 533.044 164.072C529.595 171.236 527.87 179.329 527.87 188.35C527.87 197.239 529.595 205.331 533.044 212.628C536.626 219.792 541.535 225.497 547.77 229.742C554.005 233.987 561.236 236.11 569.461 236.11C577.686 236.11 584.917 233.987 591.152 229.742C597.387 225.497 602.296 219.792 605.878 212.628C609.46 205.331 611.251 197.239 611.251 188.35Z" fill={letters}/>
+      <path d="M836.04 245.5V165.5C836.04 163.567 834.473 162 832.54 162C830.607 162 829.04 163.567 829.04 165.5V245.5C829.04 247.433 830.607 249 832.54 249V258C825.744 258 820.215 252.577 820.044 245.822L820.04 245.5V165.5C820.04 158.596 825.636 153 832.54 153C839.444 153 845.04 158.596 845.04 165.5V245.5L845.036 245.822C844.865 252.577 839.336 258 832.54 258V249C834.473 249 836.04 247.433 836.04 245.5Z" fill={dot}/>
+      <path d="M839.04 123.5C839.04 119.91 836.13 117 832.54 117C828.95 117 826.04 119.91 826.04 123.5C826.04 127.09 828.95 130 832.54 130V139C823.98 139 817.04 132.06 817.04 123.5C817.04 114.94 823.98 108 832.54 108C841.1 108 848.04 114.94 848.04 123.5C848.04 132.06 841.1 139 832.54 139V130C836.13 130 839.04 127.09 839.04 123.5Z" fill={dot}/>
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Icon set — minimal stroke, never key information by color alone.
+// ─────────────────────────────────────────────────────────────
+const Icon = {
+  back: (c = OTTI.ink, s = 22) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M15 5l-7 7 7 7" stroke={c} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  ),
+  close: (c = OTTI.ink, s = 22) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M6 6l12 12M18 6L6 18" stroke={c} strokeWidth="2.2" strokeLinecap="round"/>
+    </svg>
+  ),
+  more: (c = OTTI.ink, s = 22) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <circle cx="5" cy="12" r="1.8" fill={c}/><circle cx="12" cy="12" r="1.8" fill={c}/><circle cx="19" cy="12" r="1.8" fill={c}/>
+    </svg>
+  ),
+  plus: (c = '#fff', s = 22) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M12 5v14M5 12h14" stroke={c} strokeWidth="2.4" strokeLinecap="round"/>
+    </svg>
+  ),
+  check: (c = '#fff', s = 18) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M5 12.5l4.5 4.5L19 7.5" stroke={c} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  ),
+  chev: (c = OTTI.ink3, s = 16) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M9 6l6 6-6 6" stroke={c} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  ),
+  chevDown: (c = OTTI.ink2, s = 16) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M6 9l6 6 6-6" stroke={c} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  ),
+  home: (c, s = 24) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M4 11l8-7 8 7v9a1 1 0 01-1 1h-4v-6h-6v6H5a1 1 0 01-1-1v-9z" stroke={c} strokeWidth="2" strokeLinejoin="round"/>
+    </svg>
+  ),
+  history: (c, s = 24) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="8.5" stroke={c} strokeWidth="2"/>
+      <path d="M12 7v5l3 2" stroke={c} strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  ),
+  forum: (c, s = 24) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M4 5h12a2 2 0 012 2v6a2 2 0 01-2 2h-3l-4 4v-4H4a2 2 0 01-2-2V7a2 2 0 012-2z" stroke={c} strokeWidth="2" strokeLinejoin="round"/>
+    </svg>
+  ),
+  book: (c, s = 24) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M4 4.5a1.5 1.5 0 011.5-1.5H12v17H5.5A1.5 1.5 0 014 18.5v-14zM20 4.5A1.5 1.5 0 0018.5 3H12v17h6.5a1.5 1.5 0 001.5-1.5v-14z" stroke={c} strokeWidth="2" strokeLinejoin="round"/>
+    </svg>
+  ),
+  user: (c, s = 24) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="8" r="4" stroke={c} strokeWidth="2"/>
+      <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" stroke={c} strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  ),
+  bell: (c, s = 22) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M6 17h12l-1.5-2V11a4.5 4.5 0 00-9 0v4L6 17zM10 20a2 2 0 004 0" stroke={c} strokeWidth="2" strokeLinejoin="round"/>
+    </svg>
+  ),
+  play: (c = '#fff', s = 26) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill={c}>
+      <path d="M7 5v14l12-7-12-7z"/>
+    </svg>
+  ),
+  pause: (c = '#fff', s = 26) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill={c}>
+      <rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>
+    </svg>
+  ),
+  edit: (c, s = 18) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M4 20h4l10-10-4-4L4 16v4zM14 6l4 4" stroke={c} strokeWidth="2" strokeLinejoin="round"/>
+    </svg>
+  ),
+  heart: (c, s = 20, filled = false) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill={filled ? c : 'none'}>
+      <path d="M12 20S4 14 4 8.5a4.5 4.5 0 018-2.8 4.5 4.5 0 018 2.8C20 14 12 20 12 20z" stroke={c} strokeWidth="2" strokeLinejoin="round"/>
+    </svg>
+  ),
+  comment: (c, s = 20) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v9a2 2 0 01-2 2h-7l-4 3v-3H6a2 2 0 01-2-2V6z" stroke={c} strokeWidth="2" strokeLinejoin="round"/>
+    </svg>
+  ),
+  ear: (c = OTTI.navy, s = 24) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M7 9a5 5 0 0110 0c0 3-2 4-3 6s-1 4-3 4-3-1-3-3" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="12" cy="9" r="1.6" fill={c}/>
+    </svg>
+  ),
+  google: (s = 20) => (
+    <svg width={s} height={s} viewBox="0 0 24 24">
+      <path d="M22 12.2c0-.7-.06-1.4-.18-2H12v3.9h5.6a4.8 4.8 0 01-2.08 3.15v2.6h3.36C20.85 18 22 15.4 22 12.2z" fill="#4285F4"/>
+      <path d="M12 22c2.7 0 4.96-.9 6.62-2.4l-3.36-2.6c-.93.62-2.12 1-3.36 1-2.6 0-4.8-1.74-5.58-4.1H2.84v2.6A10 10 0 0012 22z" fill="#34A853"/>
+      <path d="M6.42 13.9a6 6 0 010-3.8V7.5H2.84a10 10 0 000 9l3.58-2.6z" fill="#FBBC05"/>
+      <path d="M12 6.1c1.46 0 2.78.5 3.82 1.5l2.86-2.86A10 10 0 002.84 7.5l3.58 2.6C7.2 7.84 9.4 6.1 12 6.1z" fill="#EA4335"/>
+    </svg>
+  ),
+  apple: (s = 20) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill={OTTI.ink}>
+      <path d="M16.4 12.6c0-2.9 2.4-4.3 2.5-4.3-1.4-2-3.5-2.3-4.3-2.3-1.8-.2-3.5 1.1-4.4 1.1s-2.3-1-3.8-1c-2 0-3.8 1.1-4.8 2.9-2 3.5-.5 8.7 1.5 11.5 1 1.4 2.1 2.9 3.6 2.8 1.5-.06 2-.95 3.7-.95s2.2.95 3.7.9c1.5 0 2.5-1.4 3.5-2.8a12 12 0 001.5-3.1c-.04-.02-3-1.15-3-4.65zM13.5 4.1c.8-1 1.3-2.3 1.2-3.6-1.1.05-2.5.75-3.3 1.7-.7.85-1.4 2.2-1.2 3.45 1.3.1 2.5-.6 3.3-1.55z"/>
+    </svg>
+  ),
+};
+
+// ─────────────────────────────────────────────────────────────
+// Button
+// ─────────────────────────────────────────────────────────────
+function Btn({ children, kind = 'primary', size = 'lg', icon, style = {}, onClick }) {
+  const heights = { lg: 56, md: 48, sm: 40 };
+  const fonts   = { lg: 17, md: 16, sm: 14 };
+  const kinds = {
+    primary:   { background: OTTI.navy,   color: '#fff' },
+    accent:    { background: OTTI.green,  color: OTTI.navyDeep },
+    coral:     { background: OTTI.coral,  color: '#fff' },
+    secondary: { background: '#fff',      color: OTTI.navy, boxShadow: `inset 0 0 0 1.5px ${OTTI.lineSolid}` },
+    ghost:     { background: 'transparent', color: OTTI.navy },
+    dark:      { background: OTTI.navyDeep, color: '#fff' },
+  };
+  return (
+    <button onClick={onClick} style={{
+      height: heights[size], borderRadius: 999, border: 'none', cursor: 'pointer',
+      fontFamily: SANS, fontSize: fonts[size], fontWeight: 700, letterSpacing: -0.1,
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+      padding: '0 22px', width: '100%', ...kinds[kind], ...style,
+    }}>
+      {icon}{children}
+    </button>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Bottom tab bar — wired to router via nav prop
+// ─────────────────────────────────────────────────────────────
+function TabBar({ active = 'home', nav = () => {} }) {
+  const tabs = [
+    { id: 'home',    label: 'Today',     icon: Icon.home,    go: 'home' },
+    { id: 'history', label: 'History',   icon: Icon.history, go: 'history' },
+    { id: 'forum',   label: 'Community', icon: Icon.forum,   go: 'forum' },
+    { id: 'read',    label: 'Learn',     icon: Icon.book,    go: 'articleList' },
+  ];
+  return (
+    <div style={{
+      position: 'absolute', bottom: 0, left: 0, right: 0,
+      paddingBottom: 28, paddingTop: 10, background: 'rgba(255,255,255,0.92)',
+      backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+      borderTop: `1px solid ${OTTI.line}`,
+      display: 'flex', justifyContent: 'space-around', zIndex: 20,
+    }}>
+      {tabs.map(t => {
+        const c = t.id === active ? OTTI.navy : OTTI.ink4;
+        return (
+          <button key={t.id} onClick={() => nav(t.go)} style={{
+            background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px 12px',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+            fontFamily: SANS, fontSize: 11, fontWeight: t.id === active ? 700 : 500, color: c,
+          }}>
+            {t.icon(c, 24)}{t.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Top header — back/close + title
+// ─────────────────────────────────────────────────────────────
+function Header({ title, back = true, close = false, trailing, sub, dark = false, onBack, onClose }) {
+  const tx = dark ? '#fff' : OTTI.ink;
+  const muted = dark ? 'rgba(255,255,255,0.6)' : OTTI.ink2;
+  return (
+    <div style={{ paddingTop: 60, paddingBottom: sub ? 6 : 18 }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 20px', height: 44,
+      }}>
+        <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center' }}>
+          {back && (
+            <button onClick={onBack} style={{
+              width: 40, height: 40, border: 'none', cursor: 'pointer',
+              background: dark ? 'rgba(255,255,255,0.08)' : OTTI.navyTint, borderRadius: 20,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>{Icon.back(tx, 20)}</button>
+          )}
+          {close && (
+            <button onClick={onClose} style={{
+              width: 40, height: 40, border: 'none', cursor: 'pointer',
+              background: dark ? 'rgba(255,255,255,0.08)' : OTTI.navyTint, borderRadius: 20,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>{Icon.close(tx, 18)}</button>
+          )}
+        </div>
+        <div style={{ fontFamily: SANS, fontWeight: 700, fontSize: 17, color: tx, letterSpacing: -0.2 }}>{title}</div>
+        <div style={{ width: 40, height: 40, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>{trailing}</div>
+      </div>
+      {sub && <div style={{ textAlign: 'center', fontSize: 13, color: muted, marginTop: 2 }}>{sub}</div>}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Toggle — used by reminders, notif prefs, privacy
+// ─────────────────────────────────────────────────────────────
+function Toggle({ on = false, onChange }) {
+  const [val, setVal] = React.useState(on);
+  React.useEffect(() => { setVal(on); }, [on]);
+  const toggle = () => {
+    const next = !val;
+    setVal(next);
+    if (onChange) onChange(next);
+  };
+  return (
+    <button onClick={toggle} style={{
+      width: 50, height: 30, borderRadius: 15, border: 'none', cursor: 'pointer', padding: 0,
+      background: val ? OTTI.green : OTTI.lineSolid,
+      position: 'relative', flexShrink: 0, transition: 'background 0.18s ease',
+    }}>
+      <div style={{
+        position: 'absolute', top: 2, left: val ? 22 : 2, width: 26, height: 26, borderRadius: 13,
+        background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.18)',
+        transition: 'left 0.18s ease',
+      }} />
+    </button>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Progress ring — used by home + log session
+// ─────────────────────────────────────────────────────────────
+function Ring({ size = 240, stroke = 18, pct = 72, color = OTTI.green, track = OTTI.navyTint }) {
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const off = c * (1 - pct / 100);
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={track} strokeWidth={stroke} />
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={stroke}
+              strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round"
+              transform={`rotate(-90 ${size/2} ${size/2})`} />
+    </svg>
+  );
+}
+
+// Tap target — wraps any node in a div that's clickable.
+function Tap({ children, onClick, style = {} }) {
+  return (
+    <div onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default', ...style }}>
+      {children}
+    </div>
+  );
+}
+
+Object.assign(window, {
+  OTTI, SANS,
+  Phone, OttiStatusBar, Mascot, Wordmark, Icon, Btn,
+  TabBar, Header, Toggle, Ring, Tap,
+});
+/* Auth & onboarding — clickable */
+
+// 01 — Splash
+function ScreenSplash({ nav }) {
+  return (
+    <Phone bg={OTTI.navy} dark>
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: `radial-gradient(120% 80% at 50% 35%, ${OTTI.navyMid} 0%, ${OTTI.navy} 55%, ${OTTI.navyDeep} 100%)`,
+      }} />
+      <div style={{ position: 'absolute', top: 130, left: 38, width: 28, height: 28, borderRadius: 14, background: 'rgba(255,255,255,0.06)' }} />
+      <div style={{ position: 'absolute', top: 270, right: 30, width: 18, height: 18, borderRadius: 9, background: OTTI.green, opacity: 0.7 }} />
+      <div style={{ position: 'absolute', top: 220, left: 24, width: 8, height: 8, borderRadius: 4, background: OTTI.coral }} />
+      <div style={{ position: 'absolute', top: 360, right: 56, width: 10, height: 10, borderRadius: 5, background: 'rgba(255,255,255,0.4)' }} />
+
+      <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 32px', zIndex: 2 }}>
+        <div style={{
+          width: 280, height: 280, borderRadius: 140, background: '#fff',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.05)',
+        }}>
+          <Mascot size={220} />
+        </div>
+        <div style={{ marginTop: 22 }}><Wordmark height={56} light /></div>
+        <div style={{ marginTop: 18, color: 'rgba(255,255,255,0.78)', fontSize: 17, lineHeight: 1.45, textAlign: 'center', maxWidth: 280 }}>
+          A gentle companion for cochlear implant families.
+        </div>
+      </div>
+
+      <div style={{ position: 'absolute', bottom: 64, left: 24, right: 24, zIndex: 2 }}>
+        <Btn kind="accent" onClick={() => nav('childProfile')}>Get started</Btn>
+        <div style={{ textAlign: 'center', marginTop: 14, color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>
+          Already with us?{' '}
+          <span onClick={() => nav('signIn')} style={{ color: '#fff', fontWeight: 700, cursor: 'pointer' }}>
+            Sign in
+          </span>
+        </div>
+      </div>
+    </Phone>
+  );
+}
+
+// 02 — Sign in
+function ScreenSignIn({ nav }) {
+  return (
+    <Phone bg={OTTI.cream}>
+      <div style={{ paddingTop: 70, paddingLeft: 28, paddingRight: 28 }}>
+        <Wordmark height={36} />
+        <div style={{ marginTop: 32, fontFamily: SANS, fontSize: 30, fontWeight: 800, letterSpacing: -0.6, lineHeight: 1.15, color: OTTI.navyDeep }}>
+          Welcome back.<br/>Good to see you.
+        </div>
+        <div style={{ marginTop: 10, color: OTTI.ink2, fontSize: 15, lineHeight: 1.45 }}>
+          Sign in to continue Mia's listening journey.
+        </div>
+
+        <div style={{ marginTop: 28 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: OTTI.ink2, marginBottom: 8 }}>Email</div>
+          <div style={{ height: 56, borderRadius: 16, background: '#fff', border: `1.5px solid ${OTTI.navy}`, display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 16, color: OTTI.ink, fontWeight: 500 }}>
+            sam.harper@gmail.com
+          </div>
+        </div>
+
+        <div style={{ marginTop: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: OTTI.ink2 }}>Password</div>
+            <div onClick={() => nav('blocked')} style={{ fontSize: 13, fontWeight: 600, color: OTTI.navy, cursor: 'pointer' }}>Forgot?</div>
+          </div>
+          <div style={{ height: 56, borderRadius: 16, background: '#fff', border: `1.5px solid ${OTTI.lineSolid}`, display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 18, color: OTTI.ink3, letterSpacing: 4 }}>
+            ••••••••••
+          </div>
+        </div>
+
+        <div style={{ marginTop: 22 }}>
+          <Btn onClick={() => nav('home')}>Sign in</Btn>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '24px 0' }}>
+          <div style={{ flex: 1, height: 1, background: OTTI.lineSolid }} />
+          <div style={{ fontSize: 12, color: OTTI.ink3, fontWeight: 600, letterSpacing: 0.4 }}>OR</div>
+          <div style={{ flex: 1, height: 1, background: OTTI.lineSolid }} />
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <Btn kind="secondary" icon={Icon.google(20)} onClick={() => nav('home')}>Continue with Google</Btn>
+          <Btn kind="secondary" icon={Icon.apple(20)} onClick={() => nav('home')}>Continue with Apple</Btn>
+        </div>
+      </div>
+    </Phone>
+  );
+}
+
+// 03 — Blocked login (not on approved list)
+function ScreenBlocked({ nav }) {
+  return (
+    <Phone bg={OTTI.cream}>
+      <Header title="Sign in" onBack={() => nav('signIn')} />
+      <div style={{ padding: '12px 28px 0' }}>
+        <div style={{
+          marginTop: 8, background: OTTI.coralSoft, borderRadius: 28, padding: '28px 24px 22px',
+          position: 'relative', overflow: 'hidden',
+        }}>
+          <div style={{ position: 'absolute', top: -30, right: -30, width: 140, height: 140, borderRadius: 70, background: '#fff', opacity: 0.45 }} />
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: 16, background: '#fff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 4px 12px rgba(180, 80, 60, 0.18)',
+            }}>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <path d="M3 6h18v12H3z" stroke={OTTI.coral} strokeWidth="2"/>
+                <path d="M3 6l9 7 9-7" stroke={OTTI.coral} strokeWidth="2" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: OTTI.coral, letterSpacing: 1, textTransform: 'uppercase' }}>Invite needed</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: OTTI.navyDeep, marginTop: 2 }}>We can't find your invite</div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ marginTop: 22, fontSize: 22, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.4, lineHeight: 1.25 }}>
+          Otti is given to families by their SJID team.
+        </div>
+        <div style={{ marginTop: 12, color: OTTI.ink2, fontSize: 15, lineHeight: 1.55 }}>
+          The email <strong style={{ color: OTTI.ink }}>sam.harper@gmail.com</strong> isn't on your team's list yet. If you think this is a mix-up, your AVT or audiologist can add you in a minute.
+        </div>
+
+        <div style={{
+          marginTop: 22, background: '#fff', borderRadius: 18,
+          padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12,
+          border: `1px solid ${OTTI.lineSolid}`,
+        }}>
+          <div style={{ width: 38, height: 38, borderRadius: 10, background: OTTI.greenSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 8a3 3 0 013-3h8a3 3 0 013 3v7a3 3 0 01-3 3h-3l-4 3v-3H8a3 3 0 01-3-3V8z" stroke={OTTI.greenDark} strokeWidth="2" strokeLinejoin="round"/></svg>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: OTTI.ink }}>Need help?</div>
+            <div style={{ fontSize: 13, color: OTTI.ink3, marginTop: 1 }}>Most teams respond within a day</div>
+          </div>
+        </div>
+
+        <div style={{ position: 'absolute', bottom: 38, left: 28, right: 28 }}>
+          <Btn>Contact SJID</Btn>
+          <div style={{ marginTop: 10 }}>
+            <Btn kind="ghost" onClick={() => nav('signIn')}>Try a different email</Btn>
+          </div>
+        </div>
+      </div>
+    </Phone>
+  );
+}
+
+// 04 — Child profile setup
+function ScreenChildProfile({ nav }) {
+  const [side, setSide] = React.useState('both');
+  return (
+    <Phone bg={OTTI.cream}>
+      <Header title="Step 1 of 3" sub="About your child" onBack={() => nav('splash')} />
+      <div style={{ padding: '14px 24px 0' }}>
+        <div style={{ fontSize: 26, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.5, lineHeight: 1.2 }}>
+          Let's set up your child's profile.
+        </div>
+        <div style={{ marginTop: 8, fontSize: 14, color: OTTI.ink2 }}>
+          Otti uses age to suggest a daily wear-time target. You can change anything later.
+        </div>
+
+        <div style={{ marginTop: 24 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: OTTI.ink2, marginBottom: 8 }}>Name</div>
+          <div style={{ height: 54, borderRadius: 14, background: '#fff', border: `1.5px solid ${OTTI.navy}`, display: 'flex', alignItems: 'center', padding: '0 16px', fontSize: 17, fontWeight: 600, color: OTTI.ink }}>
+            Mia
+          </div>
+        </div>
+
+        <div style={{ marginTop: 18 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: OTTI.ink2, marginBottom: 8 }}>Age</div>
+          <div style={{ height: 54, borderRadius: 14, background: '#fff', border: `1px solid ${OTTI.lineSolid}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 18px 0 16px', fontSize: 16, color: OTTI.ink }}>
+            <span style={{ fontWeight: 600 }}>4 years</span>
+            {Icon.chevDown()}
+          </div>
+        </div>
+
+        <div style={{ marginTop: 20 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: OTTI.ink2, marginBottom: 10 }}>Implant side</div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {[{ id: 'left', label: 'Left' }, { id: 'right', label: 'Right' }, { id: 'both', label: 'Both' }].map(opt => {
+              const sel = opt.id === side;
+              return (
+                <button key={opt.id} onClick={() => setSide(opt.id)} style={{
+                  flex: 1, height: 78, borderRadius: 16, cursor: 'pointer',
+                  background: sel ? OTTI.navy : '#fff',
+                  color: sel ? '#fff' : OTTI.ink,
+                  border: sel ? 'none' : `1px solid ${OTTI.lineSolid}`,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  fontWeight: 700, fontSize: 14, fontFamily: SANS,
+                }}>
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    {opt.id !== 'right' && Icon.ear(sel ? '#fff' : OTTI.navy, 20)}
+                    {opt.id !== 'left'  && <div style={{ transform: 'scaleX(-1)' }}>{Icon.ear(sel ? '#fff' : OTTI.navy, 20)}</div>}
+                  </div>
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div style={{
+          marginTop: 20, background: OTTI.greenSoft, borderRadius: 16,
+          padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12,
+        }}>
+          <Mascot size={48} />
+          <div style={{ fontSize: 13, color: OTTI.navyDeep, lineHeight: 1.4 }}>
+            For a 4-year-old, we'll suggest <strong>10 hours</strong> of wear a day.
+          </div>
+        </div>
+      </div>
+
+      <div style={{ position: 'absolute', bottom: 36, left: 24, right: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ flex: 1, display: 'flex', gap: 6 }}>
+          {[1,2,3].map(i => (
+            <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i === 1 ? OTTI.navy : OTTI.navyTint }} />
+          ))}
+        </div>
+        <button onClick={() => nav('invite')} style={{
+          height: 54, padding: '0 28px', borderRadius: 27, background: OTTI.navy, color: '#fff',
+          border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 16, fontFamily: SANS,
+        }}>Next</button>
+      </div>
+    </Phone>
+  );
+}
+
+// 05 — Invite second parent
+function ScreenInvitePartner({ nav }) {
+  return (
+    <Phone bg={OTTI.cream}>
+      <Header title="Step 3 of 3" sub="Bring in a partner" onBack={() => nav('childProfile')} />
+      <div style={{ padding: '14px 24px 0' }}>
+        <div style={{ fontSize: 26, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.5, lineHeight: 1.2 }}>
+          Invite the other grown-up.
+        </div>
+        <div style={{ marginTop: 8, fontSize: 14, color: OTTI.ink2, lineHeight: 1.5 }}>
+          You'll both see the same wear-time, history and reminders. Either of you can log sessions.
+        </div>
+
+        <div style={{
+          marginTop: 22, height: 150, borderRadius: 24, background: '#fff',
+          position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          border: `1px solid ${OTTI.lineSolid}`,
+        }}>
+          <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(180deg, ${OTTI.navyWash} 0%, transparent 70%)`, borderRadius: 24 }} />
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <div style={{ width: 72, height: 72, borderRadius: 36, background: OTTI.sunSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 24, color: OTTI.navyDeep, border: '4px solid #fff', zIndex: 2 }}>S</div>
+            <div style={{ width: 56, height: 56, borderRadius: 28, marginLeft: -16, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '4px solid #fff', zIndex: 3, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+              <Mascot size={56} />
+            </div>
+            <div style={{ width: 72, height: 72, borderRadius: 36, marginLeft: -16, background: OTTI.coralSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 24, color: OTTI.navyDeep, border: '4px solid #fff', zIndex: 1 }}>A</div>
+          </div>
+        </div>
+
+        <div style={{ marginTop: 24 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: OTTI.ink2, marginBottom: 8 }}>Their email</div>
+          <div style={{ height: 56, borderRadius: 16, background: '#fff', border: `1.5px solid ${OTTI.navy}`, display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 16, color: OTTI.ink, fontWeight: 500 }}>
+            alex.harper@gmail.com
+          </div>
+        </div>
+
+        <div style={{ marginTop: 14, fontSize: 13, color: OTTI.ink3, lineHeight: 1.5 }}>
+          They'll receive an invite from SJID. Their account stays linked to Mia's profile.
+        </div>
+      </div>
+
+      <div style={{ position: 'absolute', bottom: 36, left: 24, right: 24 }}>
+        <Btn onClick={() => nav('notifPermission')}>Send invite</Btn>
+        <div style={{ marginTop: 10 }}>
+          <Btn kind="ghost" onClick={() => nav('notifPermission')}>Skip for now</Btn>
+        </div>
+      </div>
+    </Phone>
+  );
+}
+
+Object.assign(window, { ScreenSplash, ScreenSignIn, ScreenBlocked, ScreenChildProfile, ScreenInvitePartner });
+/* Daily use + mascot moments — clickable */
+
+// 06 — Home / Today
+function ScreenHome({ nav }) {
+  const pct = 72;
+  return (
+    <Phone bg={OTTI.cream}>
+      <div style={{ paddingTop: 64, padding: '64px 20px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div onClick={() => nav('profile')} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
+            <div style={{ width: 44, height: 44, borderRadius: 22, background: OTTI.sunSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: OTTI.navyDeep }}>M</div>
+            <div>
+              <div style={{ fontSize: 12, color: OTTI.ink3, fontWeight: 500 }}>Good morning, Sam</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: OTTI.navyDeep, marginTop: -1 }}>Mia · Thursday</div>
+            </div>
+          </div>
+          <button onClick={() => nav('notifPrefs')} style={{
+            width: 40, height: 40, borderRadius: 20, background: '#fff', border: `1px solid ${OTTI.lineSolid}`,
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative',
+          }}>
+            {Icon.bell(OTTI.navy, 20)}
+            <div style={{ position: 'absolute', top: 8, right: 9, width: 8, height: 8, borderRadius: 4, background: OTTI.coral, border: '2px solid #fff' }} />
+          </button>
+        </div>
+
+        <div onClick={() => nav('targetMet')} style={{ position: 'relative', height: 280, marginTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+          <Ring size={264} stroke={20} pct={pct} color={OTTI.green} track={OTTI.navyTint} />
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: OTTI.ink3, letterSpacing: 0.4, textTransform: 'uppercase' }}>Today</div>
+            <div style={{ fontSize: 56, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -2, lineHeight: 1, marginTop: 4 }}>
+              7<span style={{ fontSize: 28, fontWeight: 700 }}>h</span> 12<span style={{ fontSize: 28, fontWeight: 700 }}>m</span>
+            </div>
+            <div style={{ fontSize: 13, color: OTTI.ink3, marginTop: 4 }}>of 10h goal · <span style={{ color: OTTI.greenDark, fontWeight: 700 }}>{pct}%</span></div>
+          </div>
+          <div style={{ position: 'absolute', right: 24, top: 4 }}>
+            <Mascot size={86} />
+          </div>
+        </div>
+
+        <div style={{ marginTop: 4, background: '#fff', borderRadius: 20, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, border: `1px solid ${OTTI.lineSolid}` }}>
+          <div style={{ width: 8, height: 8, borderRadius: 4, background: OTTI.green, flexShrink: 0 }} />
+          <div style={{ flex: 1, fontSize: 14, color: OTTI.ink, fontWeight: 500, lineHeight: 1.4 }}>
+            <strong>Almost there.</strong> Just under 3 hours to hit Mia's goal today.
+          </div>
+        </div>
+
+        <div style={{ marginTop: 16, display: 'flex', gap: 10 }}>
+          <button onClick={() => nav('logSession')} style={{
+            flex: 1, height: 68, borderRadius: 20, background: OTTI.navy, color: '#fff', border: 'none',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, padding: '0 16px', fontFamily: SANS,
+          }}>
+            <div style={{ width: 38, height: 38, borderRadius: 19, background: OTTI.green, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{Icon.play(OTTI.navyDeep, 18)}</div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: 11, opacity: 0.7, fontWeight: 500 }}>Start a</div>
+              <div style={{ fontSize: 15, fontWeight: 700, marginTop: -1 }}>Live session</div>
+            </div>
+          </button>
+          <button onClick={() => nav('editEntry')} style={{
+            width: 68, height: 68, borderRadius: 20, background: '#fff', border: `1px solid ${OTTI.lineSolid}`,
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            {Icon.plus(OTTI.navy, 26)}
+          </button>
+        </div>
+
+        <div style={{ marginTop: 22, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: OTTI.navyDeep }}>Today's sessions</div>
+          <div style={{ fontSize: 13, color: OTTI.navy, fontWeight: 600 }}>3</div>
+        </div>
+        <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {[
+            { time: '07:10 – 08:55', dur: '1h 45m', tag: 'Breakfast & nursery' },
+            { time: '12:30 – 15:05', dur: '2h 35m', tag: 'Park, lunch' },
+            { time: '16:00 – 18:52', dur: '2h 52m', tag: 'Home' },
+          ].map((s, i) => (
+            <div key={i} onClick={() => nav('editEntry')} style={{
+              display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 14, padding: '10px 14px',
+              border: `1px solid ${OTTI.lineSolid}`, cursor: 'pointer',
+            }}>
+              <div style={{ width: 4, height: 34, borderRadius: 2, background: OTTI.green, marginRight: 12 }} />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: OTTI.ink }}>{s.time}</div>
+                <div style={{ fontSize: 12, color: OTTI.ink3, marginTop: 1 }}>{s.tag}</div>
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: OTTI.navyDeep }}>{s.dur}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ height: 100 }} />
+      <TabBar active="home" nav={nav} />
+    </Phone>
+  );
+}
+
+// 07 — Log session
+function ScreenLogSession({ nav }) {
+  const [tab, setTab] = React.useState(0);
+  return (
+    <Phone bg={OTTI.cream}>
+      <Header title="Log a session" close back={false}
+              onClose={() => nav('home')}
+              trailing={
+                <button onClick={() => nav('home')} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: OTTI.navy, fontFamily: SANS }}>
+                  Save
+                </button>
+              } />
+      <div style={{ padding: '8px 20px 0' }}>
+        <div style={{ display: 'flex', background: OTTI.navyTint, borderRadius: 14, padding: 4, gap: 4 }}>
+          {['Live timer', 'Enter minutes'].map((t, i) => (
+            <button key={t} onClick={() => setTab(i)} style={{
+              flex: 1, height: 40, borderRadius: 10, border: 'none', cursor: 'pointer',
+              background: i === tab ? '#fff' : 'transparent',
+              boxShadow: i === tab ? '0 1px 3px rgba(12,33,80,0.08)' : 'none',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontWeight: 700, fontSize: 13, color: i === tab ? OTTI.navyDeep : OTTI.ink3,
+              fontFamily: SANS,
+            }}>{t}</button>
+          ))}
+        </div>
+
+        {tab === 0 ? (
+          <>
+            <div style={{ position: 'relative', marginTop: 28, height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Ring size={260} stroke={6} pct={28} color={OTTI.coral} track={OTTI.creamDeep} />
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: OTTI.coral, letterSpacing: 1, textTransform: 'uppercase' }}>● Recording</div>
+                <div style={{ fontSize: 56, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -2, marginTop: 6, fontFamily: SANS, fontVariantNumeric: 'tabular-nums' }}>
+                  00:42:18
+                </div>
+                <div style={{ fontSize: 13, color: OTTI.ink3, marginTop: 6 }}>Started 8:24 AM</div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 18, marginTop: 8 }}>
+              <button style={{ width: 56, height: 56, borderRadius: 28, background: '#fff', border: `1px solid ${OTTI.lineSolid}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="6" y="6" width="12" height="12" rx="2" fill={OTTI.coral}/></svg>
+              </button>
+              <button style={{ width: 78, height: 78, borderRadius: 39, background: OTTI.navy, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(22,58,120,0.3)' }}>
+                {Icon.pause('#fff', 32)}
+              </button>
+              <button style={{ width: 56, height: 56, borderRadius: 28, background: '#fff', border: `1px solid ${OTTI.lineSolid}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: OTTI.navy, fontFamily: SANS, fontWeight: 700, fontSize: 14 }}>
+                +5m
+              </button>
+            </div>
+          </>
+        ) : (
+          <div style={{ marginTop: 28, background: '#fff', borderRadius: 22, padding: '28px 18px', border: `1px solid ${OTTI.lineSolid}`, textAlign: 'center' }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: OTTI.ink3, letterSpacing: 0.4, textTransform: 'uppercase' }}>Minutes worn</div>
+            <div style={{ marginTop: 6, fontSize: 60, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -1.5, fontVariantNumeric: 'tabular-nums' }}>
+              <span style={{ background: OTTI.navyTint, padding: '0 18px', borderRadius: 12 }}>155</span>
+            </div>
+            <div style={{ marginTop: 8, fontSize: 13, color: OTTI.ink3 }}>2h 35m</div>
+            <div style={{ marginTop: 20, display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
+              {['+15', '+30', '+60', '+90'].map(q => (
+                <div key={q} style={{ padding: '8px 14px', borderRadius: 18, background: OTTI.navyTint, color: OTTI.navy, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>{q}m</div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div style={{ marginTop: 22, fontSize: 13, fontWeight: 600, color: OTTI.ink2, marginBottom: 8 }}>Add a tag (optional)</div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {[
+            { l: 'Nursery', sel: true },
+            { l: 'Play', sel: false },
+            { l: 'Mealtime', sel: false },
+            { l: 'Therapy', sel: false },
+            { l: 'Outdoors', sel: false },
+          ].map(t => (
+            <div key={t.l} style={{
+              height: 36, borderRadius: 18, padding: '0 14px', cursor: 'pointer',
+              background: t.sel ? OTTI.navy : '#fff',
+              color: t.sel ? '#fff' : OTTI.ink2,
+              border: t.sel ? 'none' : `1px solid ${OTTI.lineSolid}`,
+              display: 'flex', alignItems: 'center', fontSize: 13, fontWeight: 600,
+            }}>{t.l}</div>
+          ))}
+        </div>
+      </div>
+    </Phone>
+  );
+}
+
+// 08 — History
+function ScreenHistory({ nav }) {
+  const days = [
+    { d: 'Fri', h: 8.2 },
+    { d: 'Sat', h: 9.4 },
+    { d: 'Sun', h: 6.1 },
+    { d: 'Mon', h: 10.2, met: true },
+    { d: 'Tue', h: 9.8 },
+    { d: 'Wed', h: 10.5, met: true },
+    { d: 'Thu', h: 7.2, today: true },
+  ];
+  const maxH = 12;
+  const [seg, setSeg] = React.useState(1);
+  return (
+    <Phone bg={OTTI.cream}>
+      <div style={{ paddingTop: 60, padding: '60px 20px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ fontSize: 28, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.5 }}>History</div>
+          <div style={{ width: 40, height: 40, borderRadius: 20, background: '#fff', border: `1px solid ${OTTI.lineSolid}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{Icon.more(OTTI.navy)}</div>
+        </div>
+
+        <div style={{ marginTop: 16, display: 'flex', background: OTTI.navyTint, borderRadius: 12, padding: 4, gap: 4 }}>
+          {['Day', 'Week', 'Month'].map((t, i) => (
+            <button key={t} onClick={() => setSeg(i)} style={{
+              flex: 1, height: 36, borderRadius: 9, border: 'none', cursor: 'pointer',
+              background: i === seg ? '#fff' : 'transparent',
+              boxShadow: i === seg ? '0 1px 3px rgba(12,33,80,0.08)' : 'none',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontWeight: 700, fontSize: 13, color: i === seg ? OTTI.navyDeep : OTTI.ink3,
+              fontFamily: SANS,
+            }}>{t}</button>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 18, background: '#fff', borderRadius: 24, padding: '20px 18px', border: `1px solid ${OTTI.lineSolid}` }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ fontSize: 12, color: OTTI.ink3, fontWeight: 600 }}>This week's average</div>
+              <div style={{ fontSize: 34, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -1, marginTop: 2 }}>
+                8<span style={{ fontSize: 18, fontWeight: 700 }}>h</span> 47<span style={{ fontSize: 18, fontWeight: 700 }}>m</span>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 700, color: OTTI.greenDark, background: OTTI.greenSoft, padding: '4px 10px', borderRadius: 12 }}>
+              ↑ 12% vs last
+            </div>
+          </div>
+
+          <div style={{ marginTop: 22, display: 'flex', gap: 6, alignItems: 'flex-end', height: 140 }}>
+            {days.map((d, i) => {
+              const pct = (d.h / maxH) * 100;
+              return (
+                <div key={i} onClick={() => nav('editEntry')} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                  <div style={{ flex: 1, width: '100%', position: 'relative', display: 'flex', alignItems: 'flex-end' }}>
+                    <div style={{
+                      width: '100%', height: `${pct}%`, borderRadius: 8,
+                      background: d.today ? OTTI.coral : (d.met ? OTTI.green : OTTI.navyTint),
+                      position: 'relative',
+                    }}>
+                      {d.met && (
+                        <div style={{ position: 'absolute', top: -22, left: '50%', transform: 'translateX(-50%)', width: 18, height: 18, borderRadius: 9, background: OTTI.green, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {Icon.check('#fff', 12)}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ position: 'absolute', left: '-3px', right: '-3px', bottom: `${(10/maxH)*100}%`, borderTop: `2px dashed ${OTTI.navy}`, opacity: 0.3 }} />
+                  </div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: d.today ? OTTI.coral : OTTI.ink3 }}>{d.d}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{ marginTop: 14, display: 'flex', gap: 16, fontSize: 11, color: OTTI.ink3, fontWeight: 500 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}><div style={{ width: 9, height: 9, borderRadius: 2, background: OTTI.green }} />Goal met</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}><div style={{ width: 9, height: 9, borderRadius: 2, background: OTTI.coral }} />Today</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}><div style={{ width: 12, borderTop: `1.5px dashed ${OTTI.navy}`, opacity: 0.5 }} />10h target</div>
+          </div>
+        </div>
+
+        <div onClick={() => nav('streak')} style={{ marginTop: 14, background: OTTI.sunSoft, borderRadius: 18, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
+          <div style={{ fontSize: 24 }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill={OTTI.sun}><path d="M12 2c1 4 4 6 4 10a4 4 0 11-8 0c0-1.5 1-2.5 1-4-1 0-2-1-2-3 2-1 4-2 5-3z"/></svg>
+          </div>
+          <div style={{ flex: 1, fontSize: 14, color: OTTI.navyDeep, lineHeight: 1.4 }}>
+            <strong>3-day streak</strong> of hitting Mia's daily goal.
+          </div>
+          {Icon.chev(OTTI.navy)}
+        </div>
+      </div>
+      <div style={{ height: 100 }} />
+      <TabBar active="history" nav={nav} />
+    </Phone>
+  );
+}
+
+// 09 — Edit entry
+function ScreenEditEntry({ nav }) {
+  return (
+    <Phone bg={OTTI.cream}>
+      <Header title="Edit session" close back={false}
+              onClose={() => nav('history')}
+              trailing={
+                <button onClick={() => nav('history')} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: OTTI.navy, fontFamily: SANS }}>
+                  Save
+                </button>
+              } />
+      <div style={{ padding: '8px 20px 0' }}>
+        <div style={{ fontSize: 13, color: OTTI.ink3, fontWeight: 500 }}>Thursday, 14 May</div>
+
+        <div style={{ marginTop: 14, background: '#fff', borderRadius: 22, padding: '20px 18px', border: `1px solid ${OTTI.lineSolid}`, textAlign: 'center' }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: OTTI.ink3, letterSpacing: 0.4, textTransform: 'uppercase' }}>Duration</div>
+          <div style={{ marginTop: 6, fontSize: 46, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -1.5, fontVariantNumeric: 'tabular-nums' }}>
+            <span style={{ background: OTTI.navyTint, padding: '0 14px', borderRadius: 12 }}>2</span>
+            <span style={{ fontSize: 24, color: OTTI.ink3, padding: '0 6px' }}>h</span>
+            <span style={{ background: OTTI.navyTint, padding: '0 14px', borderRadius: 12 }}>35</span>
+            <span style={{ fontSize: 24, color: OTTI.ink3, padding: '0 6px' }}>m</span>
+          </div>
+        </div>
+
+        <div style={{ marginTop: 14, background: '#fff', borderRadius: 22, padding: '4px 18px', border: `1px solid ${OTTI.lineSolid}` }}>
+          {[
+            { l: 'Start', v: '12:30 PM' },
+            { l: 'End', v: '3:05 PM' },
+            { l: 'Tag', v: 'Park, lunch' },
+          ].map((row, i, arr) => (
+            <div key={row.l} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 54, borderBottom: i < arr.length - 1 ? `1px solid ${OTTI.lineSolid}` : 'none', cursor: 'pointer' }}>
+              <div style={{ fontSize: 15, fontWeight: 600, color: OTTI.ink }}>{row.l}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: OTTI.navy, fontWeight: 600, fontSize: 15 }}>{row.v}{Icon.chev(OTTI.ink4)}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 14, background: '#fff', borderRadius: 22, padding: '14px 16px', border: `1px solid ${OTTI.lineSolid}` }}>
+          <div style={{ fontSize: 12, color: OTTI.ink3, fontWeight: 600, marginBottom: 6 }}>Note (optional)</div>
+          <div style={{ fontSize: 15, color: OTTI.ink, lineHeight: 1.45 }}>
+            Took processor off briefly during the slide — clipped it back on after.
+          </div>
+        </div>
+
+        <button onClick={() => nav('emptyHistory')} style={{
+          marginTop: 18, height: 52, width: '100%', borderRadius: 26, background: 'transparent',
+          border: `1.5px solid ${OTTI.coralSoft}`, color: OTTI.coral, fontWeight: 700, fontSize: 15, fontFamily: SANS,
+          cursor: 'pointer',
+        }}>
+          Delete this session
+        </button>
+      </div>
+    </Phone>
+  );
+}
+
+// 23 — Empty history
+function ScreenEmptyHistory({ nav }) {
+  return (
+    <Phone bg={OTTI.cream}>
+      <div style={{ paddingTop: 60, padding: '60px 20px 0' }}>
+        <div style={{ fontSize: 28, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.5 }}>History</div>
+        <div style={{ marginTop: 16, display: 'flex', background: OTTI.navyTint, borderRadius: 12, padding: 4, gap: 4 }}>
+          {['Day', 'Week', 'Month'].map((t, i) => (
+            <div key={t} style={{
+              flex: 1, height: 36, borderRadius: 9,
+              background: i === 1 ? '#fff' : 'transparent',
+              boxShadow: i === 1 ? '0 1px 3px rgba(12,33,80,0.08)' : 'none',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontWeight: 700, fontSize: 13, color: i === 1 ? OTTI.navyDeep : OTTI.ink3,
+            }}>{t}</div>
+          ))}
+        </div>
+
+        <div style={{
+          marginTop: 50, display: 'flex', flexDirection: 'column',
+          alignItems: 'center', textAlign: 'center', padding: '0 20px',
+        }}>
+          <div style={{ position: 'relative' }}>
+            <div style={{ position: 'absolute', inset: -28, borderRadius: '50%', background: OTTI.greenSoft, opacity: 0.5 }} />
+            <div style={{ position: 'relative' }}><Mascot size={160} /></div>
+          </div>
+          <div style={{ marginTop: 28, fontSize: 22, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.4, lineHeight: 1.25, maxWidth: 280 }}>
+            Mia's listening story starts here.
+          </div>
+          <div style={{ marginTop: 12, fontSize: 15, color: OTTI.ink2, lineHeight: 1.55, maxWidth: 290 }}>
+            Once you log your first session, this is where you'll see Mia's days, weeks and months take shape.
+          </div>
+
+          <div style={{ marginTop: 26, width: '100%' }}>
+            <Btn onClick={() => nav('logSession')}>Log Mia's first session</Btn>
+          </div>
+          <div style={{ marginTop: 8 }}>
+            <Btn kind="ghost" size="md" onClick={() => nav('notifPermission')}>Or set up a reminder</Btn>
+          </div>
+        </div>
+      </div>
+      <TabBar active="history" nav={nav} />
+    </Phone>
+  );
+}
+
+// 24 — Daily target met
+function ScreenTargetMet({ nav }) {
+  return (
+    <Phone bg={OTTI.green} dark>
+      {[...Array(20)].map((_, i) => {
+        const colors = [OTTI.sun, OTTI.coral, '#fff', OTTI.navyDeep];
+        const top = (i * 37) % 700 + 80;
+        const left = (i * 53) % 350 + 10;
+        const size = 6 + (i % 3) * 3;
+        return <div key={i} style={{
+          position: 'absolute', top, left, width: size, height: size, borderRadius: i % 2 === 0 ? size/2 : 2,
+          background: colors[i % 4], transform: `rotate(${i * 27}deg)`, opacity: 0.85, zIndex: 1,
+        }} />;
+      })}
+
+      <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 28px', zIndex: 2 }}>
+        <div style={{
+          position: 'relative', width: 240, height: 240, borderRadius: 120,
+          background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{ position: 'absolute', inset: 20, borderRadius: 100, background: 'rgba(255,255,255,0.25)' }} />
+          <Mascot size={200} style={{ position: 'relative', zIndex: 2 }} />
+          <div style={{ position: 'absolute', top: -10, right: 6, width: 64, height: 64, borderRadius: 32, background: OTTI.navyDeep, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 22, border: '4px solid #fff', transform: 'rotate(10deg)', boxShadow: '0 8px 16px rgba(0,0,0,0.15)' }}>
+            10h
+          </div>
+        </div>
+
+        <div style={{ marginTop: 32, fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.85)', letterSpacing: 1.5, textTransform: 'uppercase' }}>
+          Target met
+        </div>
+        <div style={{ marginTop: 6, fontSize: 36, fontWeight: 800, color: '#fff', textAlign: 'center', letterSpacing: -0.8, lineHeight: 1.15, maxWidth: 320 }}>
+          Wow, Mia!<br/>Full 10 hours today.
+        </div>
+        <div style={{ marginTop: 14, fontSize: 16, color: 'rgba(255,255,255,0.85)', textAlign: 'center', lineHeight: 1.5, maxWidth: 300 }}>
+          That's every minute of sound her brain has been soaking up. Beautiful work, Sam.
+        </div>
+
+        <div style={{ position: 'absolute', bottom: 60, left: 28, right: 28 }}>
+          <Btn kind="dark">Share with Alex</Btn>
+          <div style={{ marginTop: 8 }}>
+            <button onClick={() => nav('home')} style={{
+              width: '100%', height: 52, border: 'none', cursor: 'pointer',
+              background: 'transparent', color: '#fff', fontWeight: 700, fontSize: 15, fontFamily: SANS,
+            }}>Back to today</button>
+          </div>
+        </div>
+      </div>
+    </Phone>
+  );
+}
+
+// 25 — First-week streak
+function ScreenStreak({ nav }) {
+  return (
+    <Phone bg={OTTI.cream}>
+      <Header title="" close back={false} onClose={() => nav('history')} />
+      <div style={{ padding: '0 24px', textAlign: 'center' }}>
+        <div style={{
+          position: 'relative', marginTop: 16, height: 280, display: 'flex',
+          flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end',
+        }}>
+          <svg width="320" height="320" viewBox="0 0 320 320" style={{ position: 'absolute', top: -20 }}>
+            {[...Array(12)].map((_, i) => {
+              const angle = (i * 30) * Math.PI / 180;
+              const x1 = 160 + Math.cos(angle) * 70;
+              const y1 = 160 + Math.sin(angle) * 70;
+              const x2 = 160 + Math.cos(angle) * 110;
+              const y2 = 160 + Math.sin(angle) * 110;
+              return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={OTTI.sun} strokeWidth="6" strokeLinecap="round" opacity={0.6} />;
+            })}
+          </svg>
+          <div style={{
+            position: 'relative', width: 180, height: 180, borderRadius: 90,
+            background: `linear-gradient(180deg, ${OTTI.sunSoft} 0%, ${OTTI.sun} 100%)`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 10px 30px rgba(245, 197, 87, 0.5)',
+          }}>
+            <Mascot size={150} />
+          </div>
+        </div>
+
+        <div style={{ marginTop: 26, fontSize: 11, fontWeight: 700, color: OTTI.sun, letterSpacing: 1.5, textTransform: 'uppercase' }}>
+          Milestone unlocked
+        </div>
+        <div style={{ marginTop: 8, fontSize: 30, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.6, lineHeight: 1.15 }}>
+          Mia's first full week.
+        </div>
+        <div style={{ marginTop: 12, fontSize: 15, color: OTTI.ink2, lineHeight: 1.55, maxWidth: 320, margin: '12px auto 0' }}>
+          Seven days in a row of consistent wear time. That kind of steadiness is exactly what helps her brain build sound habits.
+        </div>
+
+        <div style={{ marginTop: 24, display: 'flex', gap: 6, justifyContent: 'center' }}>
+          {['M','T','W','T','F','S','S'].map((d, i) => (
+            <div key={i} style={{ width: 36, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 18, background: OTTI.green, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {Icon.check('#fff', 18)}
+              </div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: OTTI.ink3 }}>{d}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ position: 'absolute', bottom: 50, left: 24, right: 24 }}>
+          <Btn kind="accent" onClick={() => nav('history')}>See Mia's week</Btn>
+        </div>
+      </div>
+    </Phone>
+  );
+}
+
+Object.assign(window, {
+  ScreenHome, ScreenLogSession, ScreenHistory, ScreenEditEntry,
+  ScreenEmptyHistory, ScreenTargetMet, ScreenStreak,
+});
+/* Reminders + Community + Articles — clickable */
+
+// 10 — Notification permission
+function ScreenNotifPermission({ nav }) {
+  return (
+    <Phone bg={OTTI.cream}>
+      <div style={{ paddingTop: 80, padding: '80px 28px 0', textAlign: 'center' }}>
+        <div style={{ position: 'relative', display: 'inline-block' }}>
+          <Mascot size={150} />
+          <div style={{
+            position: 'absolute', top: -8, right: -16, width: 56, height: 56, borderRadius: 28,
+            background: OTTI.sun, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 6px 16px rgba(245, 197, 87, 0.45)',
+            transform: 'rotate(8deg)',
+          }}>
+            {Icon.bell(OTTI.navyDeep, 28)}
+          </div>
+          <div style={{ position: 'absolute', top: -8, right: -16, width: 56, height: 56, borderRadius: 28, border: `2px solid ${OTTI.sun}`, opacity: 0.4, transform: 'scale(1.5)' }} />
+        </div>
+
+        <div style={{ marginTop: 32, fontSize: 26, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.5, lineHeight: 1.2 }}>
+          A small nudge,<br/>at the right time.
+        </div>
+        <div style={{ marginTop: 14, fontSize: 15, color: OTTI.ink2, lineHeight: 1.55 }}>
+          Otti can send gentle reminders if Mia's processors come off and the day's slipping behind. You choose when — and we'll stay quiet at night.
+        </div>
+
+        <div style={{
+          marginTop: 26, background: '#fff', borderRadius: 18,
+          padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12,
+          textAlign: 'left', boxShadow: '0 8px 20px rgba(12,33,80,0.06)',
+          border: `1px solid ${OTTI.lineSolid}`,
+        }}>
+          <div style={{ width: 36, height: 36, borderRadius: 8, background: OTTI.navy, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Mascot size={28} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: OTTI.ink }}>Otti</div>
+            <div style={{ fontSize: 13, color: OTTI.ink2, marginTop: 1 }}>Mia's a little behind today — about 3 more hours to go.</div>
+          </div>
+          <div style={{ fontSize: 11, color: OTTI.ink3, fontWeight: 500 }}>now</div>
+        </div>
+      </div>
+
+      <div style={{ position: 'absolute', bottom: 50, left: 28, right: 28 }}>
+        <Btn onClick={() => nav('home')}>Turn on reminders</Btn>
+        <div style={{ marginTop: 10 }}>
+          <Btn kind="ghost" onClick={() => nav('home')}>Not right now</Btn>
+        </div>
+      </div>
+    </Phone>
+  );
+}
+
+// 11 — Reminder settings
+function ScreenReminderSettings({ nav }) {
+  const [freq, setFreq] = React.useState(0);
+  return (
+    <Phone bg={OTTI.cream}>
+      <Header title="Reminders" onBack={() => nav('profile')} />
+      <div style={{ padding: '0 20px' }}>
+        <div style={{ background: '#fff', borderRadius: 20, padding: '16px 18px', border: `1px solid ${OTTI.lineSolid}`, display: 'flex', alignItems: 'center', gap: 14 }}>
+          <Mascot size={48} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: OTTI.ink }}>Reminders</div>
+            <div style={{ fontSize: 12, color: OTTI.ink3, marginTop: 1 }}>On — quiet 8pm to 7am</div>
+          </div>
+          <Toggle on />
+        </div>
+
+        <div style={{ marginTop: 22, fontSize: 12, fontWeight: 700, color: OTTI.ink3, letterSpacing: 0.6, textTransform: 'uppercase', padding: '0 4px' }}>How often</div>
+        <div style={{ marginTop: 8, background: '#fff', borderRadius: 18, border: `1px solid ${OTTI.lineSolid}`, overflow: 'hidden' }}>
+          {[
+            { l: 'Only if Mia is behind goal',    d: 'A gentle check-in around 4pm' },
+            { l: 'Twice a day',                   d: 'Morning and mid-afternoon' },
+            { l: 'Every 2 hours during day',      d: 'For those big catch-up days' },
+          ].map((opt, i, arr) => {
+            const sel = i === freq;
+            return (
+              <div key={i} onClick={() => setFreq(i)} style={{ display: 'flex', alignItems: 'center', padding: '14px 16px', borderBottom: i < arr.length - 1 ? `1px solid ${OTTI.lineSolid}` : 'none', gap: 14, cursor: 'pointer' }}>
+                <div style={{
+                  width: 22, height: 22, borderRadius: 11,
+                  border: sel ? 'none' : `1.5px solid ${OTTI.ink4}`,
+                  background: sel ? OTTI.navy : 'transparent',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  {sel && <div style={{ width: 8, height: 8, borderRadius: 4, background: '#fff' }} />}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: OTTI.ink }}>{opt.l}</div>
+                  <div style={{ fontSize: 12, color: OTTI.ink3, marginTop: 1 }}>{opt.d}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ marginTop: 22, fontSize: 12, fontWeight: 700, color: OTTI.ink3, letterSpacing: 0.6, textTransform: 'uppercase', padding: '0 4px' }}>Quiet hours</div>
+        <div style={{ marginTop: 8, background: '#fff', borderRadius: 18, border: `1px solid ${OTTI.lineSolid}`, padding: '4px 4px' }}>
+          {[
+            { l: 'From', v: '8:00 PM' },
+            { l: 'To', v: '7:00 AM' },
+          ].map((r, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 14px', borderBottom: i === 0 ? `1px solid ${OTTI.lineSolid}` : 'none' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: OTTI.ink }}>{r.l}</div>
+              <div style={{
+                padding: '6px 14px', background: OTTI.navyTint, borderRadius: 10,
+                fontSize: 14, fontWeight: 700, color: OTTI.navyDeep, fontVariantNumeric: 'tabular-nums',
+              }}>{r.v}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 14, padding: '0 4px', fontSize: 12, color: OTTI.ink3, lineHeight: 1.5 }}>
+          Otti will never send you reminders between these hours.
+        </div>
+      </div>
+    </Phone>
+  );
+}
+
+// 12 — Forum landing
+function ScreenForum({ nav }) {
+  const categories = [
+    { l: 'Getting started', c: 64, color: OTTI.navyTint, fg: OTTI.navy },
+    { l: 'Tips & tricks',  c: 142, color: OTTI.greenSoft, fg: OTTI.greenDark },
+    { l: 'Nursery & school', c: 38, color: OTTI.sunSoft, fg: '#A67B14' },
+    { l: 'Just venting',    c: 91, color: OTTI.coralSoft, fg: OTTI.coral },
+  ];
+  const threads = [
+    { pinned: true, who: 'SJID team', avatar: 'S', avBg: OTTI.navy, fg: '#fff', when: 'Pinned',
+      title: 'Welcome — how this space works', reply: 12, like: 86 },
+    { who: 'Priya · mum to Arun (3)', avatar: 'P', avBg: OTTI.sunSoft, fg: OTTI.navyDeep, when: '2h ago',
+      title: 'Anyone else find swim-pool weeks hard to balance?', reply: 18, like: 24 },
+    { who: 'Tom · dad to Eliza (5)', avatar: 'T', avBg: OTTI.greenSoft, fg: OTTI.navyDeep, when: '6h ago',
+      title: 'Magnet kept popping off — a fix that worked for us', reply: 31, like: 52 },
+    { who: 'Hannah · mum to Theo (2)', avatar: 'H', avBg: OTTI.coralSoft, fg: OTTI.navyDeep, when: 'Yesterday',
+      title: 'Sleep routine without the processors?', reply: 9, like: 14 },
+  ];
+  return (
+    <Phone bg={OTTI.cream}>
+      <div style={{ paddingTop: 60, padding: '60px 20px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ fontSize: 28, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.5 }}>Community</div>
+          <button onClick={() => nav('newPost')} style={{
+            height: 38, padding: '0 14px', borderRadius: 19, background: OTTI.navy, color: '#fff',
+            border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 13, fontFamily: SANS,
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}>
+            {Icon.plus('#fff', 14)} New post
+          </button>
+        </div>
+        <div style={{ marginTop: 2, fontSize: 13, color: OTTI.ink3 }}>A private space for SJID parents.</div>
+
+        <div style={{ marginTop: 18, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          {categories.map(c => (
+            <div key={c.l} style={{ background: c.color, borderRadius: 16, padding: '12px 14px', cursor: 'pointer' }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: c.fg }}>{c.l}</div>
+              <div style={{ fontSize: 12, color: OTTI.ink2, marginTop: 2 }}>{c.c} threads</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 22, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: OTTI.ink3, letterSpacing: 0.6, textTransform: 'uppercase' }}>Recent</div>
+          <div style={{ fontSize: 12, color: OTTI.navy, fontWeight: 600, cursor: 'pointer' }}>See all</div>
+        </div>
+
+        <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {threads.map((t, i) => (
+            <div key={i} onClick={() => nav('thread')} style={{ background: '#fff', borderRadius: 16, padding: '14px 14px', border: `1px solid ${OTTI.lineSolid}`, display: 'flex', gap: 12, cursor: 'pointer' }}>
+              <div style={{ width: 38, height: 38, borderRadius: 19, background: t.avBg, color: t.fg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
+                {t.avatar}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {t.pinned && <span style={{ fontSize: 10, fontWeight: 700, color: OTTI.coral, background: OTTI.coralSoft, padding: '1px 6px', borderRadius: 5, letterSpacing: 0.4, textTransform: 'uppercase' }}>Pinned</span>}
+                  <div style={{ fontSize: 11, color: OTTI.ink3, fontWeight: 600 }}>{t.who} · {t.when}</div>
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: OTTI.ink, marginTop: 3, lineHeight: 1.3 }}>{t.title}</div>
+                <div style={{ marginTop: 6, display: 'flex', gap: 14, fontSize: 12, color: OTTI.ink3, fontWeight: 500 }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>{Icon.comment(OTTI.ink3, 14)} {t.reply}</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>{Icon.heart(OTTI.ink3, 14)} {t.like}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ height: 100 }} />
+      <TabBar active="forum" nav={nav} />
+    </Phone>
+  );
+}
+
+// 13 — Thread view
+function ScreenThread({ nav }) {
+  return (
+    <Phone bg={OTTI.cream}>
+      <Header title="Tips & tricks" onBack={() => nav('forum')} />
+      <div style={{ padding: '0 20px', paddingBottom: 80 }}>
+        <div style={{ background: '#fff', borderRadius: 22, padding: '18px 18px', border: `1px solid ${OTTI.lineSolid}` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 20, background: OTTI.greenSoft, color: OTTI.navyDeep, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>T</div>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: OTTI.ink }}>Tom</div>
+              <div style={{ fontSize: 12, color: OTTI.ink3 }}>Dad to Eliza, 5 · bilateral · 6h ago</div>
+            </div>
+          </div>
+          <div style={{ marginTop: 14, fontSize: 19, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.3, lineHeight: 1.25 }}>
+            Magnet kept popping off — a fix that worked for us
+          </div>
+          <div style={{ marginTop: 10, fontSize: 14, color: OTTI.ink, lineHeight: 1.55 }}>
+            Eliza's right magnet wouldn't stay on for more than half an hour, especially during dance class. Our audi suggested going one strength up — but actually the thing that helped most was a fabric headband from a local maker.
+            <br/><br/>
+            Posting in case it helps anyone in the same boat. Happy to share the seller.
+          </div>
+          <div style={{ marginTop: 14, display: 'flex', gap: 18, fontSize: 13, fontWeight: 600 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: OTTI.coral, cursor: 'pointer' }}>{Icon.heart(OTTI.coral, 18, true)} 52</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: OTTI.ink2 }}>{Icon.comment(OTTI.ink2, 18)} 31 replies</span>
+          </div>
+        </div>
+
+        <div style={{ marginTop: 14, fontSize: 12, fontWeight: 700, color: OTTI.ink3, letterSpacing: 0.6, textTransform: 'uppercase', padding: '0 4px' }}>Replies</div>
+
+        <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {[
+            { who: 'Priya', sub: 'mum to Arun, 3', avBg: OTTI.sunSoft, when: '4h',
+              text: "Yes! We use a sweatband for swimming-pool weeks. Game changer. Which seller is yours?", like: 8 },
+            { who: 'Hannah', sub: 'mum to Theo, 2', avBg: OTTI.coralSoft, when: '2h',
+              text: "Just ordered one — thank you. We've been losing a magnet a fortnight.", like: 3 },
+            { who: 'SJID team', sub: 'team', avBg: OTTI.navy, avFg: '#fff', when: '1h',
+              text: "Good tip Tom. Headbands and clips are an underrated retention helper — happy to discuss at your next appointment.", like: 12, official: true },
+          ].map((r, i) => (
+            <div key={i} style={{ background: '#fff', borderRadius: 16, padding: '14px 14px', border: r.official ? `1px solid ${OTTI.navy}` : `1px solid ${OTTI.lineSolid}`, display: 'flex', gap: 10 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 16, background: r.avBg, color: r.avFg || OTTI.navyDeep, fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                {r.who[0]}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: OTTI.ink }}>{r.who}</span>
+                  {r.official && <span style={{ fontSize: 9, fontWeight: 700, color: '#fff', background: OTTI.navy, padding: '2px 6px', borderRadius: 4, letterSpacing: 0.5, textTransform: 'uppercase' }}>SJID</span>}
+                  <span style={{ fontSize: 11, color: OTTI.ink3 }}>· {r.sub} · {r.when}</span>
+                </div>
+                <div style={{ marginTop: 6, fontSize: 13, color: OTTI.ink, lineHeight: 1.5 }}>{r.text}</div>
+                <div style={{ marginTop: 8, display: 'flex', gap: 14, fontSize: 12, color: OTTI.ink3, fontWeight: 600 }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>{Icon.heart(OTTI.ink3, 13)} {r.like}</span>
+                  <span style={{ cursor: 'pointer' }}>Reply</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0, padding: '12px 16px 30px',
+        background: 'rgba(251,247,238,0.96)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+        borderTop: `1px solid ${OTTI.line}`, display: 'flex', alignItems: 'center', gap: 10, zIndex: 10,
+      }}>
+        <div onClick={() => nav('newPost')} style={{ flex: 1, height: 44, borderRadius: 22, background: '#fff', border: `1px solid ${OTTI.lineSolid}`, display: 'flex', alignItems: 'center', padding: '0 16px', fontSize: 14, color: OTTI.ink3, cursor: 'pointer' }}>
+          Write a reply…
+        </div>
+        <div style={{ width: 44, height: 44, borderRadius: 22, background: OTTI.navy, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="#fff" strokeWidth="2" strokeLinejoin="round"/></svg>
+        </div>
+      </div>
+    </Phone>
+  );
+}
+
+// 14 — New post composer
+function ScreenNewPost({ nav }) {
+  return (
+    <Phone bg={OTTI.cream}>
+      <Header title="New post" close back={false}
+              onClose={() => nav('forum')}
+              trailing={
+                <button onClick={() => nav('forum')} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: OTTI.navy, fontFamily: SANS }}>
+                  Post
+                </button>
+              } />
+      <div style={{ padding: '0 20px' }}>
+        <div style={{
+          background: '#fff', borderRadius: 14, padding: '12px 16px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          border: `1px solid ${OTTI.lineSolid}`, cursor: 'pointer',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 8, height: 8, borderRadius: 4, background: OTTI.greenDark }} />
+            <div style={{ fontSize: 14, fontWeight: 700, color: OTTI.navyDeep }}>Tips & tricks</div>
+          </div>
+          {Icon.chevDown()}
+        </div>
+
+        <div style={{ marginTop: 16, fontSize: 22, fontWeight: 700, color: OTTI.navyDeep, letterSpacing: -0.3, lineHeight: 1.3, padding: '0 4px' }}>
+          A question about bath time
+        </div>
+        <div style={{ marginTop: 4, padding: '0 4px', fontSize: 13, color: OTTI.ink4 }}>Title</div>
+
+        <div style={{ marginTop: 18, padding: '0 4px', fontSize: 15, color: OTTI.ink, lineHeight: 1.55, minHeight: 200 }}>
+          Mia loves her bath, but she gets really frustrated when we take her processors off — she goes quiet and won't engage. Wondering how other families handle the wash routine, or whether there are waterproof covers people would recommend?
+          <span style={{ color: OTTI.navy, fontWeight: 600 }}>|</span>
+        </div>
+
+        <div style={{ position: 'absolute', bottom: 76, left: 20, right: 20, background: OTTI.navyTint, borderRadius: 14, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 28, height: 28, borderRadius: 14, background: OTTI.sunSoft, color: OTTI.navyDeep, fontWeight: 700, fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>S</div>
+          <div style={{ flex: 1, fontSize: 12, color: OTTI.ink2 }}>
+            Posting as <strong style={{ color: OTTI.ink }}>Sam, mum to Mia (4)</strong>
+          </div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: OTTI.navy, cursor: 'pointer' }}>Change</div>
+        </div>
+
+        <div style={{ position: 'absolute', bottom: 30, left: 20, right: 20, display: 'flex', gap: 8 }}>
+          {['Aa','📎','🙂'].map((t, i) => (
+            <div key={i} style={{ width: 40, height: 40, borderRadius: 12, background: '#fff', border: `1px solid ${OTTI.lineSolid}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, color: OTTI.ink2, fontWeight: 700, cursor: 'pointer' }}>{t}</div>
+          ))}
+          <div style={{ flex: 1 }} />
+          <div style={{ height: 40, padding: '0 16px', borderRadius: 20, background: OTTI.navyTint, color: OTTI.navy, fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+            Community guidelines
+          </div>
+        </div>
+      </div>
+    </Phone>
+  );
+}
+
+// 15 — Article list
+function ScreenArticleList({ nav }) {
+  const featured = {
+    cat: 'Early years',
+    title: "What 'auditory brain time' really means",
+    read: '6 min read',
+  };
+  const articles = [
+    { cat: 'Devices', color: OTTI.greenSoft, title: 'Cleaning your processor: a 30-second routine', read: '3 min' },
+    { cat: 'Speech',  color: OTTI.coralSoft, title: 'Listening games for the kitchen table', read: '5 min' },
+    { cat: 'School',  color: OTTI.sunSoft,   title: "Talking to Mia's teacher about FM systems", read: '7 min' },
+    { cat: 'Family',  color: OTTI.navyTint,  title: 'When siblings ask "why does Mia have those?"', read: '4 min' },
+  ];
+  return (
+    <Phone bg={OTTI.cream}>
+      <div style={{ paddingTop: 60, padding: '60px 20px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ fontSize: 28, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.5 }}>Learn</div>
+          <div style={{ width: 40, height: 40, borderRadius: 20, background: '#fff', border: `1px solid ${OTTI.lineSolid}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke={OTTI.navy} strokeWidth="2"/><path d="M21 21l-4.5-4.5" stroke={OTTI.navy} strokeWidth="2" strokeLinecap="round"/></svg>
+          </div>
+        </div>
+        <div style={{ fontSize: 13, color: OTTI.ink3, marginTop: 2 }}>Hand-picked by SJID specialists.</div>
+
+        <div style={{ marginTop: 18, display: 'flex', gap: 6, overflowX: 'hidden' }}>
+          {['All', 'Early years', 'Devices', 'Speech', 'School', 'Family'].map((c, i) => (
+            <div key={c} style={{
+              height: 32, padding: '0 14px', borderRadius: 16, flexShrink: 0, cursor: 'pointer',
+              background: i === 0 ? OTTI.navy : '#fff',
+              color: i === 0 ? '#fff' : OTTI.ink2,
+              border: i === 0 ? 'none' : `1px solid ${OTTI.lineSolid}`,
+              fontWeight: 700, fontSize: 12, display: 'flex', alignItems: 'center',
+            }}>{c}</div>
+          ))}
+        </div>
+
+        <div onClick={() => nav('articleDetail')} style={{
+          marginTop: 18, height: 200, borderRadius: 24, position: 'relative', overflow: 'hidden', cursor: 'pointer',
+          background: `linear-gradient(160deg, ${OTTI.navyMid} 0%, ${OTTI.navy} 60%, ${OTTI.navyDeep} 100%)`,
+          padding: '18px 18px',
+        }}>
+          <div style={{ position: 'absolute', right: -20, bottom: -20, opacity: 0.5 }}>
+            <Mascot size={170} />
+          </div>
+          <div style={{ position: 'relative', zIndex: 2 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: OTTI.green, letterSpacing: 0.6, textTransform: 'uppercase' }}>Featured · {featured.cat}</span>
+            <div style={{ marginTop: 10, fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.25, letterSpacing: -0.4, maxWidth: 220 }}>
+              {featured.title}
+            </div>
+            <div style={{ marginTop: 12, fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{featured.read}</div>
+          </div>
+        </div>
+
+        <div style={{ marginTop: 16, fontSize: 12, fontWeight: 700, color: OTTI.ink3, letterSpacing: 0.6, textTransform: 'uppercase', padding: '0 4px' }}>For Mia, age 4</div>
+        <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {articles.map((a, i) => (
+            <div key={i} onClick={() => nav('articleDetail')} style={{ background: '#fff', borderRadius: 16, padding: 12, border: `1px solid ${OTTI.lineSolid}`, display: 'flex', gap: 12, alignItems: 'center', cursor: 'pointer' }}>
+              <div style={{ width: 56, height: 56, borderRadius: 12, background: a.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div style={{ width: 18, height: 18, borderRadius: 4, background: 'rgba(255,255,255,0.7)' }} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: OTTI.ink3, letterSpacing: 0.4, textTransform: 'uppercase' }}>{a.cat}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: OTTI.ink, marginTop: 2, lineHeight: 1.3 }}>{a.title}</div>
+                <div style={{ fontSize: 11, color: OTTI.ink3, marginTop: 4 }}>{a.read} read</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ height: 100 }} />
+      <TabBar active="read" nav={nav} />
+    </Phone>
+  );
+}
+
+// 16 — Article detail
+function ScreenArticleDetail({ nav }) {
+  return (
+    <Phone bg={'#fff'}>
+      <div style={{
+        height: 220, position: 'relative', overflow: 'hidden',
+        background: `linear-gradient(160deg, ${OTTI.navyMid} 0%, ${OTTI.navyDeep} 100%)`,
+      }}>
+        <div style={{ position: 'absolute', inset: 0 }}>
+          <div style={{ position: 'absolute', right: -10, bottom: -30, opacity: 0.55 }}>
+            <Mascot size={200} />
+          </div>
+        </div>
+        <div style={{ position: 'absolute', top: 56, left: 20, right: 20, display: 'flex', justifyContent: 'space-between' }}>
+          <button onClick={() => nav('articleList')} style={{
+            width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.18)',
+            backdropFilter: 'blur(10px)', border: 'none', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>{Icon.back('#fff', 20)}</button>
+          <div style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            {Icon.heart('#fff', 20)}
+          </div>
+        </div>
+        <div style={{ position: 'absolute', bottom: 18, left: 20, right: 100 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: OTTI.green, letterSpacing: 0.6, textTransform: 'uppercase' }}>Early years · Featured</span>
+        </div>
+      </div>
+
+      <div style={{ padding: '22px 24px 100px' }}>
+        <div style={{ fontSize: 26, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.5, lineHeight: 1.2 }}>
+          What 'auditory brain time' really means
+        </div>
+        <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: OTTI.ink3 }}>
+          <div style={{ width: 28, height: 28, borderRadius: 14, background: OTTI.navy, color: '#fff', fontWeight: 700, fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>R</div>
+          <div><strong style={{ color: OTTI.ink }}>Dr Rosie Calder</strong> · SJID Audiology · 6 min read</div>
+        </div>
+
+        <div style={{ marginTop: 18, fontSize: 15, color: OTTI.ink, lineHeight: 1.65 }}>
+          When your audiologist talks about "wear time," they're really talking about brain time. Every hour a child spends listening with their implants on is an hour their auditory cortex is laying down patterns it can't lay down any other way.
+        </div>
+
+        <div style={{
+          marginTop: 18, background: OTTI.cream, borderRadius: 16, padding: '16px 18px',
+          borderLeft: `4px solid ${OTTI.green}`, fontSize: 15, color: OTTI.navyDeep, lineHeight: 1.5,
+          fontWeight: 600,
+        }}>
+          "We aim for at least 10 hours of consistent wear by age 3 — the more the better, but never at the cost of a happy child."
+        </div>
+
+        <div style={{ marginTop: 18, fontSize: 15, color: OTTI.ink, lineHeight: 1.65 }}>
+          A few things parents tell us help build that time naturally — without it feeling like a target on a chart.
+        </div>
+
+        <ul style={{ marginTop: 14, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {[
+            'Put implants on at breakfast, not later in the morning.',
+            'Build a "magnet check" into nappy or potty trips.',
+            'Have a backup processor ready for park days.',
+          ].map((t, i) => (
+            <li key={i} style={{ display: 'flex', gap: 10, fontSize: 15, color: OTTI.ink, lineHeight: 1.5 }}>
+              <div style={{ width: 22, height: 22, borderRadius: 11, background: OTTI.greenSoft, color: OTTI.greenDark, fontWeight: 800, fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 }}>{i+1}</div>
+              {t}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 20px 30px',
+        background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(20px)',
+        borderTop: `1px solid ${OTTI.line}`, display: 'flex', alignItems: 'center', gap: 12,
+      }}>
+        <div style={{ flex: 1, fontSize: 12, color: OTTI.ink3 }}>4 of 6 articles in your reading list</div>
+        <button onClick={() => nav('articleList')} style={{
+          height: 44, padding: '0 22px', borderRadius: 22, background: OTTI.navy, color: '#fff',
+          border: 'none', cursor: 'pointer', fontWeight: 700, fontFamily: SANS, fontSize: 14,
+          display: 'flex', alignItems: 'center', gap: 6,
+        }}>
+          Next article {Icon.chev('#fff', 14)}
+        </button>
+      </div>
+    </Phone>
+  );
+}
+
+Object.assign(window, {
+  ScreenNotifPermission, ScreenReminderSettings,
+  ScreenForum, ScreenThread, ScreenNewPost,
+  ScreenArticleList, ScreenArticleDetail,
+});
+/* Account & Settings — clickable */
+
+function SetRow({ icon, title, detail, value, isLast, dotBg = OTTI.navyTint, danger, onClick }) {
+  return (
+    <div onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderBottom: isLast ? 'none' : `1px solid ${OTTI.lineSolid}`, cursor: onClick ? 'pointer' : 'default' }}>
+      <div style={{ width: 34, height: 34, borderRadius: 10, background: dotBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        {icon}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: danger ? OTTI.coral : OTTI.ink }}>{title}</div>
+        {detail && <div style={{ fontSize: 12, color: OTTI.ink3, marginTop: 1 }}>{detail}</div>}
+      </div>
+      {value && <div style={{ fontSize: 13, fontWeight: 600, color: OTTI.ink3 }}>{value}</div>}
+      {!danger && Icon.chev(OTTI.ink4)}
+    </div>
+  );
+}
+
+function SetSection({ header, children }) {
+  return (
+    <div style={{ marginTop: 18 }}>
+      {header && <div style={{ fontSize: 12, fontWeight: 700, color: OTTI.ink3, letterSpacing: 0.6, textTransform: 'uppercase', padding: '0 8px 8px' }}>{header}</div>}
+      <div style={{ background: '#fff', borderRadius: 18, border: `1px solid ${OTTI.lineSolid}`, overflow: 'hidden' }}>{children}</div>
+    </div>
+  );
+}
+
+const settingsIcons = {
+  child: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke={OTTI.navy} strokeWidth="2"/><path d="M5 20c1-3 3.5-5 7-5s6 2 7 5" stroke={OTTI.navy} strokeWidth="2" strokeLinecap="round"/></svg>,
+  goal:  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke={OTTI.greenDark} strokeWidth="2"/><circle cx="12" cy="12" r="3" fill={OTTI.greenDark}/></svg>,
+  bell:  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 17h12l-1.5-2V11a4.5 4.5 0 00-9 0v4L6 17zM10 20a2 2 0 004 0" stroke="#A67B14" strokeWidth="2" strokeLinejoin="round"/></svg>,
+  lock:  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2" stroke={OTTI.navy} strokeWidth="2"/><path d="M8 10V7a4 4 0 018 0v3" stroke={OTTI.navy} strokeWidth="2"/></svg>,
+  parent:<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="9" r="3" stroke={OTTI.coral} strokeWidth="2"/><circle cx="16" cy="9" r="3" stroke={OTTI.coral} strokeWidth="2"/><path d="M3 19c0-2.5 2-4 5-4M21 19c0-2.5-2-4-5-4" stroke={OTTI.coral} strokeWidth="2" strokeLinecap="round"/></svg>,
+  info:  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke={OTTI.navy} strokeWidth="2"/><path d="M12 11v6M12 8.5v.5" stroke={OTTI.navy} strokeWidth="2" strokeLinecap="round"/></svg>,
+  signout: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 4h3a2 2 0 012 2v12a2 2 0 01-2 2h-3M10 8l-4 4 4 4M6 12h11" stroke={OTTI.coral} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  reminder: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 17h12l-1.5-2V11a4.5 4.5 0 00-9 0v4L6 17zM10 20a2 2 0 004 0" stroke={OTTI.navy} strokeWidth="2" strokeLinejoin="round"/></svg>,
+};
+
+// 17 — Profile / settings hub
+function ScreenProfile({ nav }) {
+  return (
+    <Phone bg={OTTI.cream}>
+      <div style={{ paddingTop: 60, padding: '60px 20px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ fontSize: 28, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.5 }}>You & Mia</div>
+          <button onClick={() => nav('home')} style={{
+            width: 40, height: 40, borderRadius: 20, background: '#fff', border: `1px solid ${OTTI.lineSolid}`,
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>{Icon.more(OTTI.navy)}</button>
+        </div>
+
+        <div style={{ marginTop: 18, display: 'flex', gap: 10 }}>
+          <div style={{ flex: 1, background: '#fff', borderRadius: 20, padding: '16px 14px', border: `1px solid ${OTTI.lineSolid}` }}>
+            <div style={{ width: 56, height: 56, borderRadius: 28, background: OTTI.sunSoft, color: OTTI.navyDeep, fontWeight: 700, fontSize: 22, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>S</div>
+            <div style={{ marginTop: 12, fontSize: 15, fontWeight: 700, color: OTTI.ink }}>Sam Harper</div>
+            <div style={{ fontSize: 12, color: OTTI.ink3, marginTop: 2 }}>sam.harper@gmail.com</div>
+            <div style={{ marginTop: 10, padding: '4px 10px', background: OTTI.navyTint, borderRadius: 8, fontSize: 11, fontWeight: 700, color: OTTI.navy, display: 'inline-block' }}>Primary parent</div>
+          </div>
+          <div onClick={() => nav('childProfile')} style={{ flex: 1, background: OTTI.navy, borderRadius: 20, padding: '16px 14px', color: '#fff', position: 'relative', overflow: 'hidden', cursor: 'pointer' }}>
+            <div style={{ position: 'absolute', right: -16, bottom: -10, opacity: 0.55 }}><Mascot size={88} /></div>
+            <div style={{ width: 56, height: 56, borderRadius: 28, background: 'rgba(255,255,255,0.18)', color: '#fff', fontWeight: 700, fontSize: 22, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>M</div>
+            <div style={{ marginTop: 12, fontSize: 15, fontWeight: 700, position: 'relative' }}>Mia, 4</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 2, position: 'relative' }}>Bilateral · since 2023</div>
+            <div style={{ marginTop: 10, padding: '4px 10px', background: OTTI.green, borderRadius: 8, fontSize: 11, fontWeight: 700, color: OTTI.navyDeep, display: 'inline-block', position: 'relative' }}>10h daily goal</div>
+          </div>
+        </div>
+
+        <SetSection header="Mia's profile">
+          <SetRow icon={settingsIcons.child} title="Edit Mia's details" detail="Name, age, implant side" onClick={() => nav('childProfile')} />
+          <SetRow icon={settingsIcons.goal}  title="Daily wear goal"   value="10h 0m" isLast onClick={() => nav('childProfile')} />
+        </SetSection>
+
+        <SetSection header="App">
+          <SetRow icon={settingsIcons.bell}     title="Notifications"     detail="Reminders, achievements, replies" onClick={() => nav('notifPrefs')} />
+          <SetRow icon={settingsIcons.reminder} title="Reminder settings" detail="On — quiet 8pm to 7am"             onClick={() => nav('reminderSettings')} />
+          <SetRow icon={settingsIcons.parent}   title="Manage co-parent"  detail="Alex Harper · pending invite"      onClick={() => nav('manageParent')} />
+          <SetRow icon={settingsIcons.lock}     title="Privacy & consent" detail="Data sharing with SJID"            onClick={() => nav('privacy')} />
+          <SetRow icon={settingsIcons.info}     title="About Otti"        value="v1.4.0" isLast                     onClick={() => nav('about')} />
+        </SetSection>
+
+        <div style={{ marginTop: 18, background: '#fff', borderRadius: 18, border: `1px solid ${OTTI.lineSolid}` }}>
+          <SetRow icon={settingsIcons.signout} title="Sign out" isLast danger onClick={() => nav('signOut')} />
+        </div>
+      </div>
+      <div style={{ height: 80 }} />
+    </Phone>
+  );
+}
+
+// 18 — Notification prefs
+function ScreenNotifPrefs({ nav }) {
+  const rows = [
+    { sec: 'Otti reminders', items: [
+      { l: 'Daily wear-time nudges', d: 'When the day is slipping behind', on: true },
+      { l: 'Morning hello',          d: 'A quick start-of-day prompt',     on: false },
+    ]},
+    { sec: 'Achievements', items: [
+      { l: 'Daily goal met',         d: 'Mascot celebrates with you',      on: true },
+      { l: 'Weekly milestones',      d: 'First week, longest streak, etc.', on: true },
+      { l: 'Weekly summary',         d: 'Sundays at 7pm',                  on: true },
+    ]},
+    { sec: 'Community', items: [
+      { l: 'Replies to your posts',  d: '', on: true },
+      { l: 'New SJID announcements', d: '', on: true },
+      { l: 'Trending threads',       d: '', on: false },
+    ]},
+  ];
+  return (
+    <Phone bg={OTTI.cream}>
+      <Header title="Notifications" onBack={() => nav('profile')} />
+      <div style={{ padding: '0 20px' }}>
+        {rows.map(grp => (
+          <div key={grp.sec} style={{ marginBottom: 18 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: OTTI.ink3, letterSpacing: 0.6, textTransform: 'uppercase', padding: '0 8px 8px' }}>{grp.sec}</div>
+            <div style={{ background: '#fff', borderRadius: 18, border: `1px solid ${OTTI.lineSolid}`, overflow: 'hidden' }}>
+              {grp.items.map((r, i, arr) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '14px 16px', borderBottom: i < arr.length - 1 ? `1px solid ${OTTI.lineSolid}` : 'none', gap: 12 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: OTTI.ink }}>{r.l}</div>
+                    {r.d && <div style={{ fontSize: 12, color: OTTI.ink3, marginTop: 2 }}>{r.d}</div>}
+                  </div>
+                  <Toggle on={r.on} />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+        <div style={{ marginTop: 6, padding: '0 8px', fontSize: 12, color: OTTI.ink3, lineHeight: 1.5 }}>
+          We'll respect your iOS quiet hours and silent mode. You can change permissions anytime in iOS Settings.
+        </div>
+      </div>
+    </Phone>
+  );
+}
+
+// 19 — Privacy & consent
+function ScreenPrivacy({ nav }) {
+  return (
+    <Phone bg={OTTI.cream}>
+      <Header title="Privacy & consent" onBack={() => nav('profile')} />
+      <div style={{ padding: '0 20px' }}>
+        <div style={{ background: OTTI.navy, borderRadius: 22, padding: '18px 18px', color: '#fff', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', right: -20, top: -20, opacity: 0.45 }}><Mascot size={120} /></div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: OTTI.green, letterSpacing: 0.6, textTransform: 'uppercase' }}>Your control</div>
+          <div style={{ marginTop: 6, fontSize: 18, fontWeight: 800, letterSpacing: -0.3, lineHeight: 1.25, maxWidth: 240 }}>
+            Mia's data stays Mia's.
+          </div>
+          <div style={{ marginTop: 6, fontSize: 13, color: 'rgba(255,255,255,0.8)', maxWidth: 230, lineHeight: 1.4 }}>
+            You decide what's shared with her SJID team — and you can change your mind any time.
+          </div>
+        </div>
+
+        <SetSection header="Share with SJID">
+          {[
+            { l: 'Daily wear-time totals', d: 'Helps your team adapt therapy', on: true },
+            { l: 'Session-level data',     d: 'Tags, times of day, gaps',     on: true },
+            { l: 'Forum posts you write',  d: 'Already visible to SJID',      on: true, locked: true },
+            { l: 'Anonymous research',     d: 'Pooled, no names attached',    on: false },
+          ].map((r, i, arr) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '14px 16px', borderBottom: i < arr.length - 1 ? `1px solid ${OTTI.lineSolid}` : 'none', gap: 12 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: OTTI.ink }}>{r.l}</div>
+                <div style={{ fontSize: 12, color: OTTI.ink3, marginTop: 1 }}>{r.d}</div>
+              </div>
+              {r.locked ? (
+                <div style={{ fontSize: 11, fontWeight: 700, color: OTTI.ink3, background: OTTI.navyTint, padding: '4px 8px', borderRadius: 6 }}>Required</div>
+              ) : <Toggle on={r.on} />}
+            </div>
+          ))}
+        </SetSection>
+
+        <SetSection header="Your data">
+          <SetRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l4-4m-4 4l-4-4M5 20h14" stroke={OTTI.navy} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>} title="Download my data" detail="JSON of every session" />
+          <SetRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 7h14M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2M6 7v12a2 2 0 002 2h8a2 2 0 002-2V7" stroke={OTTI.coral} strokeWidth="2" strokeLinecap="round"/></svg>} title="Delete my account" detail="We'll remove everything within 30 days" isLast />
+        </SetSection>
+
+        <div style={{ marginTop: 16, padding: '0 8px', fontSize: 12, color: OTTI.ink3, lineHeight: 1.55 }}>
+          Read the full <span style={{ color: OTTI.navy, fontWeight: 600 }}>Privacy notice</span> and <span style={{ color: OTTI.navy, fontWeight: 600 }}>Terms</span>.
+        </div>
+      </div>
+      <div style={{ height: 40 }} />
+    </Phone>
+  );
+}
+
+// 20 — Manage co-parent
+function ScreenManageParent({ nav }) {
+  return (
+    <Phone bg={OTTI.cream}>
+      <Header title="Co-parent" onBack={() => nav('profile')} />
+      <div style={{ padding: '0 20px' }}>
+        <div style={{ background: '#fff', borderRadius: 22, padding: '18px 18px', border: `1px solid ${OTTI.lineSolid}` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ width: 56, height: 56, borderRadius: 28, background: OTTI.coralSoft, color: OTTI.navyDeep, fontWeight: 700, fontSize: 22, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>A</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: OTTI.ink }}>Alex Harper</div>
+              <div style={{ fontSize: 13, color: OTTI.ink3, marginTop: 1 }}>alex.harper@gmail.com</div>
+              <div style={{ marginTop: 6, display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 9px', background: OTTI.sunSoft, color: '#A67B14', borderRadius: 8, fontSize: 11, fontWeight: 700 }}>
+                <div style={{ width: 6, height: 6, borderRadius: 3, background: OTTI.sun }} />
+                Invite pending
+              </div>
+            </div>
+          </div>
+          <div style={{ marginTop: 14, display: 'flex', gap: 8 }}>
+            <button style={{ flex: 1, height: 44, borderRadius: 22, background: OTTI.navyTint, color: OTTI.navy, border: 'none', cursor: 'pointer', fontWeight: 700, fontFamily: SANS, fontSize: 13 }}>Resend invite</button>
+            <button style={{ flex: 1, height: 44, borderRadius: 22, background: 'transparent', color: OTTI.coral, border: `1.5px solid ${OTTI.coralSoft}`, cursor: 'pointer', fontWeight: 700, fontFamily: SANS, fontSize: 13 }}>Remove</button>
+          </div>
+        </div>
+
+        <SetSection header="Permissions for Alex">
+          {[
+            { l: "See Mia's wear-time",  on: true,  locked: true },
+            { l: 'Log and edit sessions', on: true },
+            { l: "Edit Mia's profile",    on: false },
+            { l: 'Manage reminders',      on: true },
+          ].map((r, i, arr) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '14px 16px', borderBottom: i < arr.length - 1 ? `1px solid ${OTTI.lineSolid}` : 'none', gap: 12 }}>
+              <div style={{ flex: 1, fontSize: 14, fontWeight: 600, color: OTTI.ink }}>{r.l}</div>
+              {r.locked ? <div style={{ fontSize: 11, fontWeight: 700, color: OTTI.ink3 }}>Required</div> : <Toggle on={r.on} />}
+            </div>
+          ))}
+        </SetSection>
+
+        <div style={{ marginTop: 20, background: OTTI.greenSoft, borderRadius: 18, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <Mascot size={44} />
+          <div style={{ flex: 1, fontSize: 13, color: OTTI.navyDeep, lineHeight: 1.4 }}>
+            Want to add a grandparent or carer? <strong>Talk to your SJID team</strong> — they can add up to four people.
+          </div>
+        </div>
+      </div>
+    </Phone>
+  );
+}
+
+// 21 — About
+function ScreenAbout({ nav }) {
+  return (
+    <Phone bg={OTTI.cream}>
+      <Header title="About Otti" onBack={() => nav('profile')} />
+      <div style={{ padding: '8px 20px 0', textAlign: 'center' }}>
+        <div style={{ marginTop: 8, display: 'flex', justifyContent: 'center' }}>
+          <Mascot size={140} />
+        </div>
+        <div style={{ marginTop: 12, display: 'flex', justifyContent: 'center' }}><Wordmark height={40} /></div>
+        <div style={{ marginTop: 8, fontSize: 13, color: OTTI.ink3, fontWeight: 500 }}>
+          Version 1.4.0 (build 2026.05.14)
+        </div>
+
+        <div style={{
+          marginTop: 22, background: '#fff', borderRadius: 22, padding: '20px 20px',
+          border: `1px solid ${OTTI.lineSolid}`, textAlign: 'left',
+        }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: OTTI.ink3, letterSpacing: 0.6, textTransform: 'uppercase' }}>Built with care</div>
+          <div style={{ marginTop: 8, fontSize: 15, color: OTTI.ink, lineHeight: 1.55 }}>
+            Otti was made by the team at <strong>SJID</strong>, working with cochlear implant families. Every screen has been shaped by parents who use it daily.
+          </div>
+        </div>
+
+        <SetSection header="">
+          <SetRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5 11-11" stroke={OTTI.green} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/></svg>} title="What's new" detail="Streaks, weekly summary, dark mode" />
+          <SetRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke={OTTI.navy} strokeWidth="2"/><path d="M12 8.5v4.5" stroke={OTTI.navy} strokeWidth="2" strokeLinecap="round"/><circle cx="12" cy="16" r="1" fill={OTTI.navy}/></svg>} title="Help & FAQs" />
+          <SetRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 5h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2zM3 9l9 5 9-5" stroke={OTTI.navy} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>} title="Contact SJID" />
+          <SetRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2l8 4v6c0 4-3.5 8-8 10-4.5-2-8-6-8-10V6l8-4z" stroke={OTTI.navy} strokeWidth="2" strokeLinejoin="round"/></svg>} title="Terms & privacy" isLast />
+        </SetSection>
+
+        <div style={{ marginTop: 22, fontSize: 12, color: OTTI.ink3, lineHeight: 1.5 }}>
+          Made in the UK · © SJID 2026
+        </div>
+      </div>
+      <div style={{ height: 40 }} />
+    </Phone>
+  );
+}
+
+// 22 — Sign out (modal sheet)
+function ScreenSignOut({ nav }) {
+  return (
+    <Phone bg={OTTI.cream}>
+      <div style={{ paddingTop: 60, padding: '60px 20px 0', opacity: 0.5 }}>
+        <div style={{ fontSize: 28, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.5 }}>You & Mia</div>
+        <div style={{ marginTop: 18, height: 110, background: '#fff', borderRadius: 20, border: `1px solid ${OTTI.lineSolid}` }} />
+        <div style={{ marginTop: 18, height: 80, background: '#fff', borderRadius: 20, border: `1px solid ${OTTI.lineSolid}` }} />
+        <div style={{ marginTop: 12, height: 80, background: '#fff', borderRadius: 20, border: `1px solid ${OTTI.lineSolid}` }} />
+      </div>
+      <div onClick={() => nav('profile')} style={{ position: 'absolute', inset: 0, background: 'rgba(12,33,80,0.45)', backdropFilter: 'blur(2px)', zIndex: 30, cursor: 'pointer' }} />
+      <div style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0,
+        background: '#fff', borderTopLeftRadius: 28, borderTopRightRadius: 28,
+        padding: '24px 24px 36px', zIndex: 40, textAlign: 'center',
+      }}>
+        <div style={{ width: 40, height: 4, borderRadius: 2, background: OTTI.lineSolid, margin: '0 auto 18px' }} />
+        <div style={{ display: 'flex', justifyContent: 'center' }}><Mascot size={88} /></div>
+        <div style={{ marginTop: 14, fontSize: 22, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.3 }}>
+          Sign out of Otti?
+        </div>
+        <div style={{ marginTop: 8, fontSize: 14, color: OTTI.ink2, lineHeight: 1.5 }}>
+          Your sessions stay safe with SJID. You can sign back in any time with the same email.
+        </div>
+        <div style={{ marginTop: 22, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <Btn kind="coral" onClick={() => nav('splash')}>Yes, sign out</Btn>
+          <Btn kind="ghost" onClick={() => nav('profile')}>Stay signed in</Btn>
+        </div>
+      </div>
+    </Phone>
+  );
+}
+
+Object.assign(window, {
+  ScreenProfile, ScreenNotifPrefs, ScreenPrivacy,
+  ScreenManageParent, ScreenAbout, ScreenSignOut,
+});
+// Otti — clickable prototype.
+// Single phone frame, state-driven navigation between 25 screens.
+
+const SCREEN_REGISTRY = [
+  { id: 'splash',           label: '01 · Splash',                 group: 'Auth & onboarding',  C: ScreenSplash },
+  { id: 'signIn',           label: '02 · Sign in',                group: 'Auth & onboarding',  C: ScreenSignIn },
+  { id: 'blocked',          label: '03 · Blocked login',          group: 'Auth & onboarding',  C: ScreenBlocked },
+  { id: 'childProfile',     label: '04 · Child profile setup',    group: 'Auth & onboarding',  C: ScreenChildProfile },
+  { id: 'invite',           label: '05 · Invite second parent',   group: 'Auth & onboarding',  C: ScreenInvitePartner },
+
+  { id: 'home',             label: '06 · Home / Today',           group: 'Daily use',          C: ScreenHome },
+  { id: 'logSession',       label: '07 · Log session',            group: 'Daily use',          C: ScreenLogSession },
+  { id: 'history',          label: '08 · History',                group: 'Daily use',          C: ScreenHistory },
+  { id: 'editEntry',        label: '09 · Edit entry',             group: 'Daily use',          C: ScreenEditEntry },
+
+  { id: 'notifPermission',  label: '10 · Notification permission', group: 'Reminders',         C: ScreenNotifPermission },
+  { id: 'reminderSettings', label: '11 · Reminder settings',      group: 'Reminders',          C: ScreenReminderSettings },
+
+  { id: 'forum',            label: '12 · Forum landing',          group: 'Community',          C: ScreenForum },
+  { id: 'thread',           label: '13 · Thread view',            group: 'Community',          C: ScreenThread },
+  { id: 'newPost',          label: '14 · New post',               group: 'Community',          C: ScreenNewPost },
+
+  { id: 'articleList',      label: '15 · Article list',           group: 'Articles',           C: ScreenArticleList },
+  { id: 'articleDetail',    label: '16 · Article detail',         group: 'Articles',           C: ScreenArticleDetail },
+
+  { id: 'profile',          label: '17 · Profile & settings',     group: 'Account',            C: ScreenProfile },
+  { id: 'notifPrefs',       label: '18 · Notification prefs',     group: 'Account',            C: ScreenNotifPrefs },
+  { id: 'privacy',          label: '19 · Privacy & consent',      group: 'Account',            C: ScreenPrivacy },
+  { id: 'manageParent',     label: '20 · Manage co-parent',       group: 'Account',            C: ScreenManageParent },
+  { id: 'about',            label: '21 · About / version',        group: 'Account',            C: ScreenAbout },
+  { id: 'signOut',          label: '22 · Sign out',               group: 'Account',            C: ScreenSignOut },
+
+  { id: 'emptyHistory',     label: '23 · Empty history',          group: 'Mascot moments',     C: ScreenEmptyHistory },
+  { id: 'targetMet',        label: '24 · Daily target met',       group: 'Mascot moments',     C: ScreenTargetMet },
+  { id: 'streak',           label: '25 · First-week streak',      group: 'Mascot moments',     C: ScreenStreak },
+];
+
+const SCREEN_MAP = Object.fromEntries(SCREEN_REGISTRY.map(s => [s.id, s]));
+const GROUPS = Array.from(new Set(SCREEN_REGISTRY.map(s => s.group)));
+
+function App() {
+  const [screen, setScreen] = React.useState('splash');
+  const [history, setHistory] = React.useState(['splash']);
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
+
+  const nav = (target) => {
+    if (!SCREEN_MAP[target]) return;
+    setScreen(target);
+    setHistory(h => [...h, target]);
+    setDrawerOpen(false);
+  };
+
+  const goBack = () => {
+    setHistory(h => {
+      if (h.length < 2) return h;
+      const next = h.slice(0, -1);
+      setScreen(next[next.length - 1]);
+      return next;
+    });
+  };
+
+  const reset = () => {
+    setScreen('splash');
+    setHistory(['splash']);
+    setDrawerOpen(false);
+  };
+
+  const current = SCREEN_MAP[screen];
+  const ScreenComponent = current.C;
+
+  return (
+    <div style={{
+      minHeight: '100vh', width: '100%',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '40px 20px', boxSizing: 'border-box',
+      background: `radial-gradient(120% 80% at 50% 0%, #F6F2E8 0%, #ECE9E2 60%, #DDD9D0 100%)`,
+    }}>
+      <TopBar
+        screen={current}
+        onMenu={() => setDrawerOpen(true)}
+        onBack={history.length > 1 ? goBack : null}
+        onReset={reset}
+      />
+
+      <div style={{ position: 'relative' }}>
+        <ScreenComponent nav={nav} />
+      </div>
+
+      <ScreenDrawer
+        open={drawerOpen}
+        current={screen}
+        onClose={() => setDrawerOpen(false)}
+        onPick={nav}
+      />
+
+      <BottomCredit />
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Top toolbar (outside the phone) — menu + breadcrumb + reset
+// ─────────────────────────────────────────────────────────────
+function TopBar({ screen, onMenu, onBack, onReset }) {
+  return (
+    <div style={{
+      position: 'fixed', top: 16, left: 16, right: 16, zIndex: 100,
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      pointerEvents: 'none',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, pointerEvents: 'auto' }}>
+        <button onClick={onMenu} style={{
+          height: 44, padding: '0 16px', borderRadius: 22,
+          background: '#fff', border: `1px solid ${OTTI.lineSolid}`, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', gap: 8, fontFamily: SANS, fontWeight: 700, fontSize: 13,
+          color: OTTI.navyDeep, boxShadow: '0 4px 12px rgba(12,33,80,0.06)',
+        }}>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+            <path d="M1 1h14M1 6h14M1 11h14" stroke={OTTI.navyDeep} strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+          All screens
+        </button>
+        {onBack && (
+          <button onClick={onBack} style={{
+            height: 44, width: 44, borderRadius: 22,
+            background: '#fff', border: `1px solid ${OTTI.lineSolid}`, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(12,33,80,0.06)',
+          }}>{Icon.back(OTTI.navyDeep, 18)}</button>
+        )}
+      </div>
+
+      <div style={{
+        pointerEvents: 'auto',
+        display: 'flex', alignItems: 'center', gap: 8,
+        height: 44, padding: '0 16px', borderRadius: 22,
+        background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)',
+        border: `1px solid ${OTTI.lineSolid}`,
+        fontFamily: SANS, fontSize: 12, color: OTTI.ink2,
+      }}>
+        <span style={{ color: OTTI.ink3, fontWeight: 600 }}>{screen.group}</span>
+        <span style={{ color: OTTI.ink4 }}>·</span>
+        <span style={{ fontWeight: 700, color: OTTI.navyDeep }}>{screen.label}</span>
+      </div>
+
+      <div style={{ pointerEvents: 'auto' }}>
+        <button onClick={onReset} style={{
+          height: 44, padding: '0 16px', borderRadius: 22,
+          background: OTTI.navy, color: '#fff', border: 'none', cursor: 'pointer',
+          fontFamily: SANS, fontWeight: 700, fontSize: 13,
+          boxShadow: '0 4px 12px rgba(22,58,120,0.18)',
+        }}>
+          Restart
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Screen drawer — left-side panel with all 25 screens
+// ─────────────────────────────────────────────────────────────
+function ScreenDrawer({ open, current, onClose, onPick }) {
+  return (
+    <>
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed', inset: 0, background: 'rgba(12,33,80,0.35)',
+          opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none',
+          transition: 'opacity 0.18s ease', zIndex: 200,
+          backdropFilter: 'blur(2px)',
+        }}
+      />
+      <div style={{
+        position: 'fixed', top: 0, bottom: 0, left: 0,
+        width: 340, maxWidth: '92vw',
+        background: '#fff', zIndex: 201,
+        boxShadow: '0 0 40px rgba(0,0,0,0.18)',
+        transform: open ? 'translateX(0)' : 'translateX(-100%)',
+        transition: 'transform 0.22s ease',
+        display: 'flex', flexDirection: 'column',
+        fontFamily: SANS,
+      }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '20px 22px 14px', borderBottom: `1px solid ${OTTI.lineSolid}`,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Wordmark height={26} />
+            <div style={{ fontSize: 11, fontWeight: 700, color: OTTI.ink3, letterSpacing: 0.4, textTransform: 'uppercase' }}>
+              All screens
+            </div>
+          </div>
+          <button onClick={onClose} style={{
+            width: 32, height: 32, borderRadius: 16, border: 'none', cursor: 'pointer',
+            background: OTTI.navyTint, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>{Icon.close(OTTI.navy, 16)}</button>
+        </div>
+
+        <div style={{ flex: 1, overflowY: 'auto', padding: '6px 12px 24px' }}>
+          {GROUPS.map(group => (
+            <div key={group} style={{ marginTop: 14 }}>
+              <div style={{
+                fontSize: 11, fontWeight: 700, color: OTTI.ink3,
+                letterSpacing: 0.6, textTransform: 'uppercase',
+                padding: '4px 10px 6px',
+              }}>{group}</div>
+              {SCREEN_REGISTRY.filter(s => s.group === group).map(s => {
+                const active = s.id === current;
+                return (
+                  <button key={s.id} onClick={() => onPick(s.id)} style={{
+                    width: '100%', textAlign: 'left',
+                    padding: '10px 12px', borderRadius: 10, marginBottom: 2,
+                    border: 'none', cursor: 'pointer',
+                    background: active ? OTTI.navyTint : 'transparent',
+                    color: active ? OTTI.navyDeep : OTTI.ink,
+                    fontFamily: SANS, fontSize: 14, fontWeight: active ? 700 : 500,
+                    display: 'flex', alignItems: 'center', gap: 8,
+                  }}>
+                    {active && <div style={{ width: 6, height: 6, borderRadius: 3, background: OTTI.green }} />}
+                    {!active && <div style={{ width: 6 }} />}
+                    {s.label}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+
+        <div style={{
+          padding: '14px 22px', borderTop: `1px solid ${OTTI.lineSolid}`,
+          fontSize: 12, color: OTTI.ink3, lineHeight: 1.5,
+        }}>
+          <strong style={{ color: OTTI.ink2 }}>Otti</strong> — a gentle companion for cochlear implant families. Clickable v1 prototype for SJID review.
+        </div>
+      </div>
+    </>
+  );
+}
+
+function BottomCredit() {
+  return (
+    <div style={{
+      position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)',
+      fontFamily: SANS, fontSize: 11, color: OTTI.ink3, fontWeight: 500,
+      background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(8px)',
+      padding: '6px 14px', borderRadius: 12, border: `1px solid ${OTTI.lineSolid}`,
+      zIndex: 90,
+    }}>
+      Tap inside the phone to navigate · Use <strong style={{ color: OTTI.navyDeep }}>All screens</strong> to jump anywhere
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);

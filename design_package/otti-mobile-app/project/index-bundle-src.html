@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Otti — Mobile UI mockups</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="ext-resource-dependency" content="assets/mascot.svg" data-resource-id="mascot" />
+<template id="__bundler_thumbnail" data-bg-color="#163A78">
+  <svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+    <!-- Simplified Otti mascot silhouette -->
+    <ellipse cx="300" cy="540" rx="200" ry="14" fill="rgba(0,0,0,0.18)"/>
+    <rect x="180" y="500" width="80" height="40" rx="20" fill="#0C2150"/>
+    <rect x="340" y="500" width="80" height="40" rx="20" fill="#0C2150"/>
+    <rect x="120" y="80" width="360" height="440" rx="160" fill="#1F4F9D"/>
+    <circle cx="220" cy="240" r="38" fill="#FFFFFF"/>
+    <circle cx="380" cy="240" r="38" fill="#FFFFFF"/>
+    <circle cx="220" cy="252" r="14" fill="#0C2150"/>
+    <circle cx="380" cy="252" r="14" fill="#0C2150"/>
+    <path d="M240 340 Q300 380 360 340" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round" fill="none"/>
+    <circle cx="500" cy="190" r="18" fill="#A8C83C"/>
+  </svg>
+</template>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  html, body, #root { margin: 0; padding: 0; height: 100%; background: #f0eee9; }
+  body { font-family: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="tokens.jsx"></script>
+<script type="text/babel" src="screens-auth.jsx"></script>
+<script type="text/babel" src="screens-daily.jsx"></script>
+<script type="text/babel" src="screens-comms.jsx"></script>
+<script type="text/babel" src="screens-account.jsx"></script>
+<script type="text/babel" src="app.jsx"></script>
+</body>
+</html>
