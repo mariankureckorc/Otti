@@ -38,11 +38,16 @@ const settingsIcons = {
 
 // 17 — Profile / settings hub
 function ScreenProfile({ nav }) {
+  const { children, active, setActive, addChild } = useChildren();
+  const [addOpen, setAddOpen] = React.useState(false);
+
   return (
     <Phone bg={OTTI.cream}>
       <div style={{ paddingTop: 60, padding: '60px 20px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ fontSize: 28, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.5 }}>You & Mia</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.5 }}>
+            You & {active.name}
+          </div>
           <button onClick={() => nav('home')} style={{
             width: 40, height: 40, borderRadius: 20, background: '#fff', border: `1px solid ${OTTI.lineSolid}`,
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -58,16 +63,89 @@ function ScreenProfile({ nav }) {
           </div>
           <div onClick={() => nav('childProfile')} style={{ flex: 1, background: OTTI.navy, borderRadius: 20, padding: '16px 14px', color: '#fff', position: 'relative', overflow: 'hidden', cursor: 'pointer' }}>
             <div style={{ position: 'absolute', right: -16, bottom: -10, opacity: 0.55 }}><Mascot size={88} /></div>
-            <div style={{ width: 56, height: 56, borderRadius: 28, background: 'rgba(255,255,255,0.18)', color: '#fff', fontWeight: 700, fontSize: 22, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>M</div>
-            <div style={{ marginTop: 12, fontSize: 15, fontWeight: 700, position: 'relative' }}>Mia, 4</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 2, position: 'relative' }}>Bilateral · since 2023</div>
-            <div style={{ marginTop: 10, padding: '4px 10px', background: OTTI.green, borderRadius: 8, fontSize: 11, fontWeight: 700, color: OTTI.navyDeep, display: 'inline-block', position: 'relative' }}>10h daily goal</div>
+            <div style={{ width: 56, height: 56, borderRadius: 28, background: 'rgba(255,255,255,0.18)', color: '#fff', fontWeight: 700, fontSize: 22, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{active.name[0]}</div>
+            <div style={{ marginTop: 12, fontSize: 15, fontWeight: 700, position: 'relative' }}>{active.name}, {active.age}</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 2, position: 'relative' }}>{implantSideLabel(active.implantSide)} · since {active.since}</div>
+            <div style={{ marginTop: 10, padding: '4px 10px', background: OTTI.green, borderRadius: 8, fontSize: 11, fontWeight: 700, color: OTTI.navyDeep, display: 'inline-block', position: 'relative' }}>{fmtHm(active.goalMinutes)} daily goal</div>
           </div>
         </div>
 
-        <SetSection header="Mia's profile">
-          <SetRow icon={settingsIcons.child} title="Edit Mia's details" detail="Name, age, implant side" onClick={() => nav('childProfile')} />
-          <SetRow icon={settingsIcons.goal}  title="Daily wear goal"   value="10h 0m" isLast onClick={() => nav('childProfile')} />
+        {/* Child switcher — horizontal scroll tile row + Add child tile */}
+        <div style={{
+          marginTop: 14, fontSize: 12, fontWeight: 700, color: OTTI.ink3,
+          letterSpacing: 0.6, textTransform: 'uppercase', padding: '0 4px',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        }}>
+          <span>Children · {children.length}</span>
+          {children.length > 1 && (
+            <span style={{ textTransform: 'none', letterSpacing: 0, fontWeight: 500, color: OTTI.ink3 }}>
+              Tap to switch
+            </span>
+          )}
+        </div>
+        <div style={{
+          marginTop: 8, display: 'flex', gap: 8, overflowX: 'auto',
+          paddingBottom: 4, marginLeft: -20, marginRight: -20, padding: '0 20px 4px',
+          scrollbarWidth: 'none',
+        }}>
+          {children.map(c => {
+            const isActive = c.id === active.id;
+            return (
+              <button
+                key={c.id}
+                onClick={() => setActive(c.id)}
+                aria-pressed={isActive}
+                style={{
+                  flexShrink: 0, width: 112, padding: '12px 12px', borderRadius: 16,
+                  background: isActive ? OTTI.navy : '#fff',
+                  color: isActive ? '#fff' : OTTI.ink,
+                  border: isActive ? `1.5px solid ${OTTI.navy}` : `1px solid ${OTTI.lineSolid}`,
+                  textAlign: 'left', fontFamily: SANS, cursor: 'pointer',
+                  display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 6,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                  <div style={{
+                    width: 32, height: 32, borderRadius: 16,
+                    background: isActive ? 'rgba(255,255,255,0.18)' : OTTI.sunSoft,
+                    color: isActive ? '#fff' : OTTI.navyDeep,
+                    fontWeight: 700, fontSize: 14,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>{c.name[0]}</div>
+                  {isActive && (
+                    <div style={{
+                      width: 8, height: 8, borderRadius: 4, background: OTTI.green,
+                    }} />
+                  )}
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 700 }}>{c.name}</div>
+                <div style={{ fontSize: 11, opacity: isActive ? 0.8 : 1, color: isActive ? 'rgba(255,255,255,0.85)' : OTTI.ink3 }}>
+                  {c.age}yo · {implantSideLabel(c.implantSide)}
+                </div>
+              </button>
+            );
+          })}
+          <button
+            onClick={() => setAddOpen(true)}
+            style={{
+              flexShrink: 0, width: 112, padding: 12, borderRadius: 16,
+              background: 'transparent', border: `1.5px dashed ${OTTI.ink4}`,
+              color: OTTI.navy, fontFamily: SANS, cursor: 'pointer',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              gap: 4, minHeight: 96,
+            }}
+          >
+            <div style={{
+              width: 32, height: 32, borderRadius: 16, background: OTTI.navyTint,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>{Icon.plus(OTTI.navy, 18)}</div>
+            <div style={{ fontSize: 13, fontWeight: 700 }}>Add child</div>
+          </button>
+        </div>
+
+        <SetSection header={`${active.name}'s profile`}>
+          <SetRow icon={settingsIcons.child} title={`Edit ${active.name}'s details`} detail="Name, age, implant side" onClick={() => nav('childProfile')} />
+          <SetRow icon={settingsIcons.goal}  title="Daily wear goal"   value={fmtHm(active.goalMinutes)} isLast onClick={() => nav('childProfile')} />
         </SetSection>
 
         <SetSection header="App">
@@ -83,7 +161,124 @@ function ScreenProfile({ nav }) {
         </div>
       </div>
       <div style={{ height: 80 }} />
+
+      {addOpen && (
+        <AddChildSheet
+          onClose={() => setAddOpen(false)}
+          onSubmit={(data) => { addChild(data); setAddOpen(false); }}
+        />
+      )}
     </Phone>
+  );
+}
+
+// Add-child sheet — overlay within the Profile screen.
+function AddChildSheet({ onClose, onSubmit }) {
+  const [name, setName] = React.useState('');
+  const [age, setAge] = React.useState(3);
+  const [side, setSide] = React.useState('both');
+
+  const canSubmit = name.trim().length > 0 && age >= 0 && age <= 18;
+
+  return (
+    <>
+      {/* Scrim */}
+      <div onClick={onClose} style={{
+        position: 'absolute', inset: 0, background: 'rgba(12,33,80,0.45)',
+        backdropFilter: 'blur(2px)', zIndex: 30, cursor: 'pointer',
+      }} />
+      {/* Sheet */}
+      <div style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0,
+        background: '#fff', borderTopLeftRadius: 28, borderTopRightRadius: 28,
+        padding: '20px 24px 32px', zIndex: 40, fontFamily: SANS,
+        boxShadow: '0 -20px 40px rgba(0,0,0,0.1)',
+      }}>
+        <div style={{ width: 40, height: 4, borderRadius: 2, background: OTTI.lineSolid, margin: '0 auto 16px' }} />
+        <div style={{ fontSize: 22, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.3 }}>Add a child</div>
+        <div style={{ marginTop: 4, fontSize: 13, color: OTTI.ink2 }}>
+          You'll log wear time separately for each child.
+        </div>
+
+        {/* Name */}
+        <div style={{ marginTop: 18 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: OTTI.ink2, marginBottom: 6 }}>Name</div>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. Theo"
+            autoFocus
+            style={{
+              width: '100%', height: 50, borderRadius: 14,
+              background: '#fff', border: `1.5px solid ${name ? OTTI.navy : OTTI.lineSolid}`,
+              padding: '0 16px', fontSize: 16, fontWeight: 500, color: OTTI.ink,
+              fontFamily: SANS, outline: 'none', boxSizing: 'border-box',
+            }}
+          />
+        </div>
+
+        {/* Age — stepper */}
+        <div style={{ marginTop: 14 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: OTTI.ink2, marginBottom: 6 }}>Age</div>
+          <div style={{
+            height: 50, borderRadius: 14, background: '#fff',
+            border: `1px solid ${OTTI.lineSolid}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '0 6px',
+          }}>
+            <button
+              onClick={() => setAge(a => Math.max(0, a - 1))}
+              style={{
+                width: 38, height: 38, borderRadius: 10, border: 'none', cursor: 'pointer',
+                background: OTTI.navyTint, color: OTTI.navy, fontSize: 22, fontWeight: 700,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >−</button>
+            <div style={{ fontSize: 17, fontWeight: 700, color: OTTI.ink, fontVariantNumeric: 'tabular-nums' }}>
+              {age} {age === 1 ? 'year' : 'years'}
+            </div>
+            <button
+              onClick={() => setAge(a => Math.min(18, a + 1))}
+              style={{
+                width: 38, height: 38, borderRadius: 10, border: 'none', cursor: 'pointer',
+                background: OTTI.navyTint, color: OTTI.navy, fontSize: 22, fontWeight: 700,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >+</button>
+          </div>
+        </div>
+
+        {/* Implant side */}
+        <div style={{ marginTop: 14 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: OTTI.ink2, marginBottom: 6 }}>Implant side</div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {[{ id: 'left', label: 'Left' }, { id: 'right', label: 'Right' }, { id: 'both', label: 'Both' }].map(opt => {
+              const sel = opt.id === side;
+              return (
+                <button key={opt.id} onClick={() => setSide(opt.id)} style={{
+                  flex: 1, height: 50, borderRadius: 14, cursor: 'pointer',
+                  background: sel ? OTTI.navy : '#fff',
+                  color: sel ? '#fff' : OTTI.ink,
+                  border: sel ? 'none' : `1px solid ${OTTI.lineSolid}`,
+                  fontWeight: 700, fontSize: 14, fontFamily: SANS,
+                }}>{opt.label}</button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div style={{ marginTop: 22, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <Btn
+            onClick={() => canSubmit && onSubmit({ name: name.trim(), age, implantSide: side })}
+            style={{ opacity: canSubmit ? 1 : 0.45, cursor: canSubmit ? 'pointer' : 'not-allowed' }}
+          >
+            Add child
+          </Btn>
+          <Btn kind="ghost" onClick={onClose}>Cancel</Btn>
+        </div>
+      </div>
+    </>
   );
 }
 
