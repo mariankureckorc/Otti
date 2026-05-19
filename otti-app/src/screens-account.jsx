@@ -43,6 +43,10 @@ function ScreenProfile({ nav }) {
 
   return (
     <Phone bg={OTTI.cream}>
+      {/* Internal scroll wrapper — Profile content exceeds the 844px phone
+          height, so it needs its own scroll context. Sibling AddChildSheet
+          stays positioned against Phone outer, so it remains pinned. */}
+      <div style={{ position: 'absolute', inset: 0, overflow: 'auto' }}>
       <div style={{ paddingTop: 60, padding: '60px 20px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ fontSize: 28, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.5 }}>
@@ -161,6 +165,7 @@ function ScreenProfile({ nav }) {
         </div>
       </div>
       <div style={{ height: 80 }} />
+      </div>{/* /scroll wrapper */}
 
       {addOpen && (
         <AddChildSheet
