@@ -1129,29 +1129,54 @@ function HistoryWeekView({ nav }) {
           </div>
         </div>
 
-        <div style={{ marginTop: 22, display: 'flex', gap: 6, alignItems: 'flex-end', height: 140 }}>
-          {WEEK_MINUTES.map((m, i) => {
-            const isToday = i === WEEK_MINUTES.length - 1;
-            const met = m >= DAILY_TARGET_MIN;
-            const pct = (m / maxScale) * 100;
-            return (
-              <div key={i} onClick={() => nav('editEntry')} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-                <div style={{ flex: 1, width: '100%', position: 'relative', display: 'flex', alignItems: 'flex-end' }}>
-                  <div style={{
-                    width: '100%', height: `${pct}%`, borderRadius: 8,
-                    background: isToday ? OTTI.coral : (met ? OTTI.green : OTTI.navyTint),
-                    position: 'relative',
-                  }}>
-                    {met && (
-                      <div style={{ position: 'absolute', top: -22, left: '50%', transform: 'translateX(-50%)', width: 18, height: 18, borderRadius: 9, background: OTTI.green, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {Icon.check('#fff', 12)}
-                      </div>
-                    )}
-                  </div>
-                  <div style={{ position: 'absolute', left: -3, right: -3, bottom: `${(DAILY_TARGET_MIN/maxScale)*100}%`, borderTop: `2px dashed ${OTTI.navy}`, opacity: 0.3 }} />
+        {/* Chart — absolute-positioned inner row guarantees bars get a real
+            parent height to compute `height: pct%` against. */}
+        <div style={{ marginTop: 22, position: 'relative', height: 140 }}>
+          {/* Bars row */}
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', gap: 6, alignItems: 'flex-end' }}>
+            {WEEK_MINUTES.map((m, i) => {
+              const isToday = i === WEEK_MINUTES.length - 1;
+              const met = m >= DAILY_TARGET_MIN;
+              const pct = (m / maxScale) * 100;
+              return (
+                <div key={i} onClick={() => nav('editEntry')}
+                     aria-label={`${labels[i]}: ${fmtHm(m)}`}
+                     style={{
+                       flex: 1, height: `${pct}%`, minHeight: 4,
+                       borderRadius: 8, position: 'relative', cursor: 'pointer',
+                       background: isToday ? OTTI.coral : (met ? OTTI.green : OTTI.navyTint),
+                     }}>
+                  {met && (
+                    <div style={{
+                      position: 'absolute', top: -22, left: '50%', transform: 'translateX(-50%)',
+                      width: 18, height: 18, borderRadius: 9, background: OTTI.green,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      {Icon.check('#fff', 12)}
+                    </div>
+                  )}
                 </div>
-                <div style={{ fontSize: 11, fontWeight: 600, color: isToday ? OTTI.coral : OTTI.ink3 }}>{labels[i]}</div>
-              </div>
+              );
+            })}
+          </div>
+          {/* Target line — overlays the bars at the right percentage */}
+          <div style={{
+            position: 'absolute', left: 0, right: 0,
+            bottom: `${(DAILY_TARGET_MIN / maxScale) * 100}%`,
+            borderTop: `2px dashed ${OTTI.navy}`, opacity: 0.3, pointerEvents: 'none',
+          }} />
+        </div>
+
+        {/* Weekday labels — separate row, aligned with bars via matching flex+gap */}
+        <div style={{ marginTop: 8, display: 'flex', gap: 6 }}>
+          {labels.map((l, i) => {
+            const isToday = i === WEEK_MINUTES.length - 1;
+            return (
+              <div key={i} style={{
+                flex: 1, textAlign: 'center',
+                fontSize: 11, fontWeight: 600,
+                color: isToday ? OTTI.coral : OTTI.ink3,
+              }}>{l}</div>
             );
           })}
         </div>
