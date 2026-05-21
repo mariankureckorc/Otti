@@ -19,6 +19,8 @@ const OTTI = {
   coralSoft:   '#FCDFD6',
   sun:         '#F5C557',
   sunSoft:     '#FCEDC6',
+  lavender:    '#EAE4FA',
+  lavenderDark:'#6C56C9',
   ink:         '#171B2A',
   ink2:        '#4A5165',
   ink3:        '#8A92A6',
@@ -190,6 +192,25 @@ const Icon = {
   bell: (c, s = 22) => (
     <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
       <path d="M6 17h12l-1.5-2V11a4.5 4.5 0 00-9 0v4L6 17zM10 20a2 2 0 004 0" stroke={c} strokeWidth="2" strokeLinejoin="round"/>
+    </svg>
+  ),
+  trophy: (c, s = 22) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M8 21h8M12 17.5V21M7 4h10v4a5 5 0 01-10 0V4z" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M7 6H4.5A1.5 1.5 0 003 7.5C3 9 4 11 7 11M17 6h2.5A1.5 1.5 0 0121 7.5C21 9 20 11 17 11" stroke={c} strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  ),
+  medal: (c, s = 22) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M8 3l4 7 4-7M6 3h12" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="12" cy="15" r="6" stroke={c} strokeWidth="2"/>
+      <path d="M12 12.5l1 2 2.2.3-1.6 1.5.4 2.2L12 17.5l-2 1-0.4-2.2L8 14.8 10.2 14.5z" fill={c} stroke="none"/>
+    </svg>
+  ),
+  calendar: (c, s = 22) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="5" width="18" height="16" rx="2" stroke={c} strokeWidth="2"/>
+      <path d="M3 10h18M8 3v4M16 3v4" stroke={c} strokeWidth="2" strokeLinecap="round"/>
     </svg>
   ),
   play: (c = '#fff', s = 26) => (

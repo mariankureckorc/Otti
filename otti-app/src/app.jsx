@@ -25,16 +25,17 @@ const SCREEN_REGISTRY = [
   { id: 'articleList',      label: '13 · Article list',           group: 'Articles',           C: ScreenArticleList },
   { id: 'articleDetail',    label: '14 · Article detail',         group: 'Articles',           C: ScreenArticleDetail },
 
-  { id: 'profile',          label: '15 · Profile & settings',     group: 'Account',            C: ScreenProfile },
-  { id: 'notifPrefs',       label: '16 · Notification prefs',     group: 'Account',            C: ScreenNotifPrefs },
-  { id: 'privacy',          label: '17 · Privacy & consent',      group: 'Account',            C: ScreenPrivacy },
-  { id: 'manageParent',     label: '18 · Manage co-parent',       group: 'Account',            C: ScreenManageParent },
-  { id: 'about',            label: '19 · About / version',        group: 'Account',            C: ScreenAbout },
-  { id: 'signOut',          label: '20 · Sign out',               group: 'Account',            C: ScreenSignOut },
+  { id: 'profile',            label: '15 · Profile & settings',     group: 'Account',            C: ScreenProfile },
+  { id: 'notifications',      label: '16 · Notifications (feed)',   group: 'Account',            C: ScreenNotifications },
+  { id: 'notificationDetail', label: '17 · Notification detail',    group: 'Account',            C: ScreenNotificationDetail },
+  { id: 'privacy',            label: '18 · Privacy & consent',      group: 'Account',            C: ScreenPrivacy },
+  { id: 'manageParent',       label: '19 · Manage co-parent',       group: 'Account',            C: ScreenManageParent },
+  { id: 'about',              label: '20 · About / version',        group: 'Account',            C: ScreenAbout },
+  { id: 'signOut',            label: '21 · Sign out',               group: 'Account',            C: ScreenSignOut },
 
-  { id: 'emptyHistory',     label: '21 · Empty history',          group: 'Mascot moments',     C: ScreenEmptyHistory },
-  { id: 'targetMet',        label: '22 · Daily target met',       group: 'Mascot moments',     C: ScreenTargetMet },
-  { id: 'streak',           label: '23 · First-week streak',      group: 'Mascot moments',     C: ScreenStreak },
+  { id: 'emptyHistory',       label: '22 · Empty history',          group: 'Mascot moments',     C: ScreenEmptyHistory },
+  { id: 'targetMet',          label: '23 · Daily target met',       group: 'Mascot moments',     C: ScreenTargetMet },
+  { id: 'streak',             label: '24 · First-week streak',      group: 'Mascot moments',     C: ScreenStreak },
 ];
 
 const SCREEN_MAP = Object.fromEntries(SCREEN_REGISTRY.map(s => [s.id, s]));

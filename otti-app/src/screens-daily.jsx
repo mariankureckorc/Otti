@@ -21,7 +21,7 @@ function ScreenHome({ nav }) {
               <div style={{ fontSize: 17, fontWeight: 700, color: OTTI.navyDeep, marginTop: -1 }}>{active.name} · {weekday}</div>
             </div>
           </div>
-          <button onClick={() => nav('notifPrefs')} style={{
+          <button onClick={() => nav('notifications')} style={{
             width: 40, height: 40, borderRadius: 20, background: '#fff', border: `1px solid ${OTTI.lineSolid}`,
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative',
           }}>

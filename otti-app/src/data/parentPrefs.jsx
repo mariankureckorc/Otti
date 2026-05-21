@@ -6,19 +6,42 @@
 const MAX_REMINDERS = 3;
 
 const PARENT_PREFS_INITIAL = {
+  masterEnabled: true,
   reminders: [
     { id: 'r-morning', time: '08:00', label: 'Morning', enabled: true },
     { id: 'r-evening', time: '18:00', label: 'Evening', enabled: true },
   ],
+  achievements: {
+    goalMet: true,
+    weeklyMilestones: true,
+    weeklySummary: true,
+  },
+  quietHours: { from: '20:00', to: '07:00' },
 };
 
 const parentPrefs = {
   state: {
+    masterEnabled: PARENT_PREFS_INITIAL.masterEnabled,
     reminders: PARENT_PREFS_INITIAL.reminders.map(r => ({ ...r })),
+    achievements: { ...PARENT_PREFS_INITIAL.achievements },
+    quietHours: { ...PARENT_PREFS_INITIAL.quietHours },
   },
   listeners: new Set(),
   subscribe(fn) { this.listeners.add(fn); return () => this.listeners.delete(fn); },
   emit() { this.listeners.forEach(fn => fn()); },
+
+  setMasterEnabled(v) {
+    this.state.masterEnabled = !!v;
+    this.emit();
+  },
+  setAchievement(key, v) {
+    this.state.achievements = { ...this.state.achievements, [key]: !!v };
+    this.emit();
+  },
+  setQuietHours(patch) {
+    this.state.quietHours = { ...this.state.quietHours, ...patch };
+    this.emit();
+  },
 
   // Pick a sensible default time for a newly added reminder that doesn't
   // collide with anything already configured.
@@ -68,11 +91,21 @@ function useParentPrefs() {
   const [, force] = React.useReducer(x => x + 1, 0);
   React.useEffect(() => parentPrefs.subscribe(force), []);
   return {
+    // master
+    masterEnabled: parentPrefs.state.masterEnabled,
+    setMasterEnabled: (v) => parentPrefs.setMasterEnabled(v),
+    // reminders
     reminders: parentPrefs.state.reminders,
     addReminder: () => parentPrefs.add(),
     updateReminder: (id, patch) => parentPrefs.update(id, patch),
     removeReminder: (id) => parentPrefs.remove(id),
     canAddMore: parentPrefs.state.reminders.length < MAX_REMINDERS,
+    // achievements
+    achievements: parentPrefs.state.achievements,
+    setAchievement: (key, v) => parentPrefs.setAchievement(key, v),
+    // quiet hours
+    quietHours: parentPrefs.state.quietHours,
+    setQuietHours: (patch) => parentPrefs.setQuietHours(patch),
   };
 }
 

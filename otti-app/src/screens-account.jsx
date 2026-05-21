@@ -153,11 +153,10 @@ function ScreenProfile({ nav }) {
         </SetSection>
 
         <SetSection header="App">
-          <SetRow icon={settingsIcons.bell}     title="Notifications"     detail="Reminders, achievements, replies" onClick={() => nav('notifPrefs')} />
-          <SetRow icon={settingsIcons.reminder} title="Reminder settings" detail="On — quiet 8pm to 7am"             onClick={() => nav('reminderSettings')} />
-          <SetRow icon={settingsIcons.parent}   title="Manage co-parent"  detail="Alex Harper · pending invite"      onClick={() => nav('manageParent')} />
-          <SetRow icon={settingsIcons.lock}     title="Privacy & consent" detail="Data sharing with SJID"            onClick={() => nav('privacy')} />
-          <SetRow icon={settingsIcons.info}     title="About Otti"        value="v1.4.0" isLast                     onClick={() => nav('about')} />
+          <SetRow icon={settingsIcons.reminder} title="Reminders"         detail="Reminder times, achievements, quiet hours" onClick={() => nav('reminderSettings')} />
+          <SetRow icon={settingsIcons.parent}   title="Manage co-parent"  detail="Alex Harper · pending invite"              onClick={() => nav('manageParent')} />
+          <SetRow icon={settingsIcons.lock}     title="Privacy & consent" detail="Data sharing with SJID"                    onClick={() => nav('privacy')} />
+          <SetRow icon={settingsIcons.info}     title="About Otti"        value="v1.4.0" isLast                              onClick={() => nav('about')} />
         </SetSection>
 
         <div style={{ marginTop: 18, background: '#fff', borderRadius: 18, border: `1px solid ${OTTI.lineSolid}` }}>
@@ -287,175 +286,156 @@ function AddChildSheet({ onClose, onSubmit }) {
   );
 }
 
-// 18 — Notification prefs
-function ScreenNotifPrefs({ nav }) {
-  const { reminders, addReminder, updateReminder, removeReminder, canAddMore } = useParentPrefs();
-  const achievements = [
-    { id: 'goal-met',  l: 'Daily goal met',    d: 'Mascot celebrates with you',       on: true },
-    { id: 'milestone', l: 'Weekly milestones', d: 'First week, longest streak, etc.', on: true },
-    { id: 'summary',   l: 'Weekly summary',    d: 'Sundays at 7pm',                   on: true },
-  ];
+// 18 — Notifications (feed)
+// Recent notifications, newest first. Tap a card to open the detail view.
+const NOTIF_TYPE_META = {
+  reminder:    { bg: OTTI.navyTint,  fg: OTTI.navy,         icon: 'bell',     label: 'Reminder' },
+  achievement: { bg: OTTI.greenSoft, fg: OTTI.greenDark,    icon: 'trophy',   label: 'Achievement' },
+  milestone:   { bg: OTTI.sunSoft,   fg: '#A67B14',         icon: 'medal',    label: 'Milestone' },
+  summary:     { bg: OTTI.lavender,  fg: OTTI.lavenderDark, icon: 'calendar', label: 'Weekly summary' },
+};
+
+function ScreenNotifications({ nav }) {
+  const { list, open } = useNotifications();
+
+  function handleOpen(id) {
+    open(id);
+    nav('notificationDetail');
+  }
 
   return (
     <Phone bg={OTTI.cream}>
-      {/* Back routes to Home (Today tab) — distinct from the other
-          settings sub-screens which return to Profile. */}
       <Header title="Notifications" onBack={() => nav('home')} />
       <div style={{ position: 'absolute', top: 96, bottom: 0, left: 0, right: 0, overflow: 'auto' }}>
-        <div style={{ padding: '0 20px' }}>
-          {/* — Otti reminders — configurable list ———————————— */}
-          <div style={{ marginBottom: 18 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: OTTI.ink3, letterSpacing: 0.6, textTransform: 'uppercase', padding: '0 8px 8px' }}>
-              Otti reminders
+        <div style={{ padding: '0 20px 40px' }}>
+          {list.length === 0 ? (
+            <div style={{ marginTop: 40, textAlign: 'center', color: OTTI.ink3, fontSize: 14 }}>
+              No notifications yet.
             </div>
-            <div style={{ background: '#fff', borderRadius: 18, border: `1px solid ${OTTI.lineSolid}`, overflow: 'hidden' }}>
-              {reminders.map((r, i, arr) => (
-                <ReminderRow
-                  key={r.id}
-                  reminder={r}
-                  canRemove={reminders.length > 1}
-                  onUpdate={updateReminder}
-                  onRemove={removeReminder}
-                  isLast={i === arr.length - 1}
-                />
-              ))}
-            </div>
-            <button
-              onClick={() => { if (canAddMore) addReminder(); }}
-              disabled={!canAddMore}
-              style={{
-                marginTop: 10, width: '100%', height: 44, borderRadius: 14,
-                background: canAddMore ? OTTI.navyTint : OTTI.lineSolid,
-                color: canAddMore ? OTTI.navy : OTTI.ink4,
-                border: 'none', cursor: canAddMore ? 'pointer' : 'not-allowed',
-                fontFamily: SANS, fontSize: 14, fontWeight: 700,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              }}
-            >
-              {Icon.plus(canAddMore ? OTTI.navy : OTTI.ink4, 16)}
-              Add a reminder
-            </button>
-            {!canAddMore && (
-              <div style={{ marginTop: 6, padding: '0 8px', fontSize: 12, color: OTTI.ink3 }}>
-                You've reached the maximum of {MAX_REMINDERS} reminders.
-              </div>
-            )}
-          </div>
-
-          {/* — Achievements — unchanged ———————————— */}
-          <div style={{ marginBottom: 18 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: OTTI.ink3, letterSpacing: 0.6, textTransform: 'uppercase', padding: '0 8px 8px' }}>
-              Achievements
-            </div>
-            <div style={{ background: '#fff', borderRadius: 18, border: `1px solid ${OTTI.lineSolid}`, overflow: 'hidden' }}>
-              {achievements.map((r, i, arr) => (
-                <div key={r.id} style={{
-                  display: 'flex', alignItems: 'center', padding: '14px 16px',
-                  borderBottom: i < arr.length - 1 ? `1px solid ${OTTI.lineSolid}` : 'none',
-                  gap: 12,
-                }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: OTTI.ink }}>{r.l}</div>
-                    {r.d && <div style={{ fontSize: 12, color: OTTI.ink3, marginTop: 2 }}>{r.d}</div>}
-                  </div>
-                  <Toggle on={r.on} />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ marginTop: 6, marginBottom: 40, padding: '0 8px', fontSize: 12, color: OTTI.ink3, lineHeight: 1.5 }}>
-            We'll respect your device's quiet hours and silent mode.
-          </div>
+          ) : (
+            list.map(n => <NotificationCard key={n.id} n={n} onClick={() => handleOpen(n.id)} />)
+          )}
         </div>
       </div>
     </Phone>
   );
 }
 
-// Single configurable reminder row.
-function ReminderRow({ reminder, canRemove, onUpdate, onRemove, isLast }) {
-  const [error, setError] = React.useState('');
-  const [labelDraft, setLabelDraft] = React.useState(reminder.label);
-
-  // Sync local label draft if the underlying reminder is replaced externally.
-  React.useEffect(() => { setLabelDraft(reminder.label); }, [reminder.label]);
-
-  function handleTimeChange(newTime) {
-    if (!newTime) return;
-    const result = onUpdate(reminder.id, { time: newTime });
-    if (result && result.ok === false && result.error === 'duplicate') {
-      setError('You already have a reminder at this time');
-    } else {
-      setError('');
-    }
-  }
-
-  function commitLabel() {
-    const next = labelDraft.trim() || reminder.label;
-    if (next !== reminder.label) onUpdate(reminder.id, { label: next });
-    setLabelDraft(next);
-  }
-
+function NotificationCard({ n, onClick }) {
+  const meta = NOTIF_TYPE_META[n.type] || NOTIF_TYPE_META.reminder;
+  const iconFn = Icon[meta.icon] || Icon.bell;
   return (
-    <div style={{
-      padding: '12px 16px',
-      borderBottom: isLast ? 'none' : `1px solid ${OTTI.lineSolid}`,
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <input
-          type="time"
-          value={reminder.time}
-          onChange={(e) => handleTimeChange(e.target.value)}
-          aria-label="Reminder time"
-          style={{
-            width: 96, height: 36, borderRadius: 10,
-            background: OTTI.navyTint, color: OTTI.navyDeep,
-            border: 'none', padding: '0 10px',
-            fontSize: 14, fontWeight: 700,
-            fontFamily: SANS, fontVariantNumeric: 'tabular-nums',
-            outline: 'none', flexShrink: 0,
-          }}
-        />
-        <input
-          type="text"
-          value={labelDraft}
-          onChange={(e) => setLabelDraft(e.target.value)}
-          onBlur={commitLabel}
-          onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
-          placeholder="Label"
-          maxLength={20}
-          aria-label="Reminder label"
-          style={{
-            flex: 1, height: 36, borderRadius: 10,
-            background: '#fff', border: `1px solid ${OTTI.lineSolid}`,
-            padding: '0 10px', fontSize: 14, color: OTTI.ink, fontWeight: 500,
-            fontFamily: SANS, outline: 'none', minWidth: 0,
-          }}
-        />
-        <Toggle
-          on={reminder.enabled}
-          onChange={(next) => onUpdate(reminder.id, { enabled: next })}
-        />
-        {canRemove && (
-          <button
-            onClick={() => onRemove(reminder.id)}
-            aria-label="Remove reminder"
-            style={{
-              width: 28, height: 28, borderRadius: 14, border: 'none', cursor: 'pointer',
-              background: OTTI.coralSoft,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0, padding: 0,
-            }}
-          >{Icon.close(OTTI.coral, 14)}</button>
+    <div
+      onClick={onClick}
+      style={{
+        display: 'flex', alignItems: 'flex-start', gap: 12,
+        padding: '14px 14px', background: '#fff',
+        border: `1px solid ${n.read ? OTTI.lineSolid : OTTI.navyTint}`,
+        borderRadius: 16, marginBottom: 10, cursor: 'pointer',
+      }}
+    >
+      <div style={{
+        width: 42, height: 42, borderRadius: 21, background: meta.bg,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+      }}>
+        {iconFn(meta.fg, 20)}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{
+          fontSize: 14, fontWeight: n.read ? 600 : 800,
+          color: OTTI.ink, lineHeight: 1.3,
+        }}>{n.title}</div>
+        <div style={{
+          marginTop: 4, fontSize: 13, color: OTTI.ink3, lineHeight: 1.4,
+          overflow: 'hidden', textOverflow: 'ellipsis',
+          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+        }}>{n.snippet}</div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
+        <div style={{ fontSize: 11, color: OTTI.ink3, fontWeight: 500, whiteSpace: 'nowrap' }}>
+          {relativeTime(n.timestamp)}
+        </div>
+        {!n.read && (
+          <div aria-label="Unread" style={{ width: 8, height: 8, borderRadius: 4, background: OTTI.coral }} />
         )}
       </div>
-      {error && (
-        <div style={{ marginTop: 6, fontSize: 12, color: OTTI.coral, fontWeight: 500 }}>{error}</div>
-      )}
     </div>
   );
 }
+
+function ScreenNotificationDetail({ nav }) {
+  const { activeNotification: n, clearActive } = useNotifications();
+
+  // Fallback if there's no active notification (deep link, refresh, etc.) —
+  // route the user back to the list.
+  React.useEffect(() => {
+    if (!n) nav('notifications');
+  }, [n, nav]);
+
+  if (!n) return null;
+
+  const meta = NOTIF_TYPE_META[n.type] || NOTIF_TYPE_META.reminder;
+  const iconFn = Icon[meta.icon] || Icon.bell;
+
+  function handleBack() {
+    clearActive();
+    nav('notifications');
+  }
+
+  function handleAction() {
+    if (n.action && n.action.target) {
+      clearActive();
+      nav(n.action.target);
+    }
+  }
+
+  return (
+    <Phone bg={OTTI.cream}>
+      <Header title="" onBack={handleBack} />
+      <div style={{ position: 'absolute', top: 96, bottom: 0, left: 0, right: 0, overflow: 'auto' }}>
+        <div style={{ padding: '0 24px 40px' }}>
+          {/* Large icon */}
+          <div style={{
+            width: 72, height: 72, borderRadius: 36, background: meta.bg,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 4,
+          }}>
+            {iconFn(meta.fg, 32)}
+          </div>
+
+          {/* Type label */}
+          <div style={{
+            marginTop: 16, fontSize: 11, fontWeight: 700,
+            color: meta.fg, letterSpacing: 0.6, textTransform: 'uppercase',
+          }}>{meta.label}</div>
+
+          {/* Title */}
+          <div style={{
+            marginTop: 4, fontSize: 24, fontWeight: 800, color: OTTI.navyDeep,
+            letterSpacing: -0.3, lineHeight: 1.25,
+          }}>{n.title}</div>
+
+          {/* Absolute timestamp */}
+          <div style={{ marginTop: 6, fontSize: 12, color: OTTI.ink3, fontWeight: 500 }}>
+            {absoluteTime(n.timestamp)}
+          </div>
+
+          {/* Body */}
+          <div style={{ marginTop: 18, fontSize: 15, color: OTTI.ink, lineHeight: 1.6 }}>
+            {n.body}
+          </div>
+
+          {/* Optional action */}
+          {n.action && (
+            <div style={{ marginTop: 28 }}>
+              <Btn onClick={handleAction}>{n.action.label}</Btn>
+            </div>
+          )}
+        </div>
+      </div>
+    </Phone>
+  );
+}
+
 
 // 19 — Privacy & consent
 function ScreenPrivacy({ nav }) {
@@ -630,6 +610,7 @@ function ScreenSignOut({ nav }) {
 }
 
 Object.assign(window, {
-  ScreenProfile, ScreenNotifPrefs, ScreenPrivacy,
-  ScreenManageParent, ScreenAbout, ScreenSignOut,
+  ScreenProfile,
+  ScreenNotifications, ScreenNotificationDetail,
+  ScreenPrivacy, ScreenManageParent, ScreenAbout, ScreenSignOut,
 });
