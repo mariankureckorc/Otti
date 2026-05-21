@@ -8,9 +8,10 @@ const SCREEN_REGISTRY = [
   { id: 'blocked',          label: '03 · Blocked login',          group: 'Auth & onboarding',  C: ScreenBlocked },
   { id: 'signupStep1',      label: '04 · Sign up — Step 1',       group: 'Auth & onboarding',  C: ScreenSignupStep1 },
   { id: 'signupStep2',      label: '05 · Sign up — Step 2',       group: 'Auth & onboarding',  C: ScreenSignupStep2 },
-  { id: 'verifyWaiting',    label: '06 · Verifying account',      group: 'Auth & onboarding',  C: ScreenVerifyWaiting },
-  { id: 'childProfile',     label: '07 · Child profile (legacy)', group: 'Auth & onboarding',  C: ScreenChildProfile },
-  { id: 'invite',           label: '08 · Invite second parent',   group: 'Auth & onboarding',  C: ScreenInvitePartner },
+  { id: 'verifyWaiting',    label: '06 · Verify your email',      group: 'Auth & onboarding',  C: ScreenVerifyWaiting },
+  { id: 'emailVerified',    label: '07 · Email verified',         group: 'Auth & onboarding',  C: ScreenEmailVerified },
+  { id: 'childProfile',     label: '08 · Child profile (legacy)', group: 'Auth & onboarding',  C: ScreenChildProfile },
+  { id: 'invite',           label: '09 · Invite second parent',   group: 'Auth & onboarding',  C: ScreenInvitePartner },
 
   { id: 'home',             label: '06 · Home / Today',           group: 'Daily use',          C: ScreenHome },
   { id: 'logSession',       label: '07 · Log session',            group: 'Daily use',          C: ScreenLogSession },
