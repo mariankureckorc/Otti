@@ -2638,9 +2638,21 @@ Object.assign(window, {
 });
 /* Account & Settings — clickable */
 
-function SetRow({ icon, title, detail, value, isLast, dotBg = OTTI.navyTint, danger, onClick }) {
+function SetRow({ icon, title, detail, value, isLast, dotBg = OTTI.navyTint, danger, onClick, readOnly = false }) {
+  // readOnly rows are static — no chevron, no tap handler, no pointer cursor.
+  // The underlying element stays a plain <div> with no role/aria-pressed,
+  // so assistive tech announces it as a static text row rather than a button.
+  const interactive = !readOnly && typeof onClick === 'function';
   return (
-    <div onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderBottom: isLast ? 'none' : `1px solid ${OTTI.lineSolid}`, cursor: onClick ? 'pointer' : 'default' }}>
+    <div
+      onClick={interactive ? onClick : undefined}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 14,
+        padding: '14px 16px',
+        borderBottom: isLast ? 'none' : `1px solid ${OTTI.lineSolid}`,
+        cursor: interactive ? 'pointer' : 'default',
+      }}
+    >
       <div style={{ width: 34, height: 34, borderRadius: 10, background: dotBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         {icon}
       </div>
@@ -2649,7 +2661,7 @@ function SetRow({ icon, title, detail, value, isLast, dotBg = OTTI.navyTint, dan
         {detail && <div style={{ fontSize: 12, color: OTTI.ink3, marginTop: 1 }}>{detail}</div>}
       </div>
       {value && <div style={{ fontSize: 13, fontWeight: 600, color: OTTI.ink3 }}>{value}</div>}
-      {!danger && Icon.chev(OTTI.ink4)}
+      {!danger && !readOnly && Icon.chev(OTTI.ink4)}
     </div>
   );
 }
@@ -2787,7 +2799,8 @@ function ScreenProfile({ nav }) {
 
         <SetSection header={`${active.name}'s profile`}>
           <SetRow icon={settingsIcons.child} title={`Edit ${active.name}'s details`} detail="Name, age, implant side" onClick={() => nav('childProfile')} />
-          <SetRow icon={settingsIcons.goal}  title="Daily wear goal"   value={fmtHm(active.goalMinutes)} isLast onClick={() => nav('childProfile')} />
+          {/* Daily wear goal is derived from the child's age — read-only. */}
+          <SetRow icon={settingsIcons.goal}  title="Daily wear goal"   value={fmtHm(active.goalMinutes)} isLast readOnly />
         </SetSection>
 
         <SetSection header="App">
