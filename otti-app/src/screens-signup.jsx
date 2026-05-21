@@ -526,12 +526,16 @@ function ScreenVerifyWaiting({ nav }) {
 // Step 2/2: success — user clicked the verification link.
 // Auto-progresses to Home after 4s.
 function ScreenEmailVerified({ nav }) {
-  const { reset } = useSignupDraft();
+  const { draft, reset } = useSignupDraft();
 
   const finish = React.useCallback(() => {
+    // Persist signup-derived identity so screens like the export sheet
+    // (and any other consumer of useCurrentUser) get a sensible pre-fill.
+    if (draft.email)     currentUser.setEmail(draft.email);
+    if (draft.firstName || draft.lastName) currentUser.setName(draft.firstName, draft.lastName);
     reset();
     nav('home');
-  }, [nav, reset]);
+  }, [draft, nav, reset]);
 
   React.useEffect(() => {
     const t = setTimeout(finish, 4000);
