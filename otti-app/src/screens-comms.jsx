@@ -172,76 +172,201 @@ function ScreenForum({ nav }) {
   );
 }
 
-// 13 — Article list
+// 13 — Learn (article list)
+// Picture-led layout: title + search + category sections of full-width
+// hero-image cards. No filter chips, no sort dropdowns, no advanced search.
+
+const LEARN_CATEGORIES = [
+  {
+    id: 'getting-started',
+    name: 'Getting Started',
+    pillBg: OTTI.navyTint,
+    pillFg: OTTI.navy,
+    articles: [
+      {
+        id: 'welcome',
+        title: 'Welcome to Otti — Getting Started',
+        readMin: 4,
+        // mother + baby tender moment
+        image: 'https://images.unsplash.com/photo-1518806118471-f28b20a1d79d?w=720&h=420&fit=crop&auto=format&q=80',
+      },
+    ],
+  },
+  {
+    id: 'daily-routine',
+    name: 'Daily Routine',
+    pillBg: OTTI.coralSoft,
+    pillFg: OTTI.coral,
+    articles: [
+      {
+        id: 'wear-time-routine',
+        title: 'Building a Daily Wear-Time Routine',
+        readMin: 5,
+        // parent + child silhouette in warm light
+        image: 'https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?w=720&h=420&fit=crop&auto=format&q=80',
+      },
+    ],
+  },
+  {
+    id: 'troubleshooting',
+    name: 'Troubleshooting',
+    pillBg: OTTI.sunSoft,
+    pillFg: '#A67B14',
+    articles: [
+      {
+        id: 'wont-keep-on',
+        title: "When Your Child Won't Keep the Device On",
+        readMin: 6,
+        // parent + child hands — quiet, comforting
+        image: 'https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=720&h=420&fit=crop&auto=format&q=80',
+      },
+    ],
+  },
+  {
+    id: 'talking',
+    name: 'Talking With Your Child',
+    pillBg: OTTI.greenSoft,
+    pillFg: OTTI.greenDark,
+    articles: [
+      {
+        id: 'conversation-habits',
+        title: 'Conversation Habits That Build Language',
+        readMin: 4,
+        // mother + baby looking at each other
+        image: 'https://images.unsplash.com/photo-1602030638412-bb8dcc0bc8b0?w=720&h=420&fit=crop&auto=format&q=80',
+      },
+    ],
+  },
+];
+
 function ScreenArticleList({ nav }) {
-  const featured = {
-    cat: 'Early years',
-    title: "What 'auditory brain time' really means",
-    read: '6 min read',
-  };
-  const articles = [
-    { cat: 'Devices', color: OTTI.greenSoft, title: 'Cleaning your processor: a 30-second routine', read: '3 min' },
-    { cat: 'Speech',  color: OTTI.coralSoft, title: 'Listening games for the kitchen table', read: '5 min' },
-    { cat: 'School',  color: OTTI.sunSoft,   title: "Talking to Mia's teacher about FM systems", read: '7 min' },
-    { cat: 'Family',  color: OTTI.navyTint,  title: 'When siblings ask "why does Mia have those?"', read: '4 min' },
-  ];
+  const [query, setQuery] = React.useState('');
+
+  const q = query.trim().toLowerCase();
+  const visible = q === ''
+    ? LEARN_CATEGORIES
+    : LEARN_CATEGORIES
+        .map(c => ({
+          ...c,
+          articles: c.articles.filter(a =>
+            a.title.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)
+          ),
+        }))
+        .filter(c => c.articles.length > 0);
+
   return (
     <Phone bg={OTTI.cream}>
-      <div style={{ paddingTop: 60, padding: '60px 20px 0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ fontSize: 28, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.5 }}>Learn</div>
-          <div style={{ width: 40, height: 40, borderRadius: 20, background: '#fff', border: `1px solid ${OTTI.lineSolid}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke={OTTI.navy} strokeWidth="2"/><path d="M21 21l-4.5-4.5" stroke={OTTI.navy} strokeWidth="2" strokeLinecap="round"/></svg>
-          </div>
-        </div>
-        <div style={{ fontSize: 13, color: OTTI.ink3, marginTop: 2 }}>Hand-picked by SJID specialists.</div>
+      {/* Internal scroll wrapper — keeps the TabBar below pinned to phone bottom */}
+      <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflow: 'auto' }}>
+        <div style={{ paddingTop: 70, padding: '70px 20px 0' }}>
+          {/* Title */}
+          <div style={{ fontSize: 30, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -0.6 }}>Learn</div>
 
-        <div style={{ marginTop: 18, display: 'flex', gap: 6, overflowX: 'hidden' }}>
-          {['All', 'Early years', 'Devices', 'Speech', 'School', 'Family'].map((c, i) => (
-            <div key={c} style={{
-              height: 32, padding: '0 14px', borderRadius: 16, flexShrink: 0, cursor: 'pointer',
-              background: i === 0 ? OTTI.navy : '#fff',
-              color: i === 0 ? '#fff' : OTTI.ink2,
-              border: i === 0 ? 'none' : `1px solid ${OTTI.lineSolid}`,
-              fontWeight: 700, fontSize: 12, display: 'flex', alignItems: 'center',
-            }}>{c}</div>
-          ))}
-        </div>
-
-        <div onClick={() => nav('articleDetail')} style={{
-          marginTop: 18, height: 200, borderRadius: 24, position: 'relative', overflow: 'hidden', cursor: 'pointer',
-          background: `linear-gradient(160deg, ${OTTI.navyMid} 0%, ${OTTI.navy} 60%, ${OTTI.navyDeep} 100%)`,
-          padding: '18px 18px',
-        }}>
-          <div style={{ position: 'absolute', right: -20, bottom: -20, opacity: 0.5 }}>
-            <Mascot size={170} />
+          {/* Search bar */}
+          <div style={{
+            marginTop: 14, display: 'flex', alignItems: 'center', gap: 8,
+            height: 44, borderRadius: 22, background: '#fff',
+            border: `1px solid ${OTTI.lineSolid}`, padding: '0 14px',
+            boxShadow: '0 1px 2px rgba(12,33,80,0.03)',
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+              <circle cx="11" cy="11" r="7" stroke={OTTI.ink3} strokeWidth="2" />
+              <path d="M21 21l-4.5-4.5" stroke={OTTI.ink3} strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search articles..."
+              style={{
+                flex: 1, height: '100%', border: 'none', outline: 'none',
+                background: 'transparent', fontSize: 14, color: OTTI.ink,
+                fontFamily: SANS, minWidth: 0,
+              }}
+            />
+            {query && (
+              <button onClick={() => setQuery('')} aria-label="Clear search" style={{
+                width: 24, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
+                background: OTTI.navyTint, color: OTTI.navy,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0, padding: 0,
+              }}>{Icon.close(OTTI.navy, 12)}</button>
+            )}
           </div>
-          <div style={{ position: 'relative', zIndex: 2 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: OTTI.green, letterSpacing: 0.6, textTransform: 'uppercase' }}>Featured · {featured.cat}</span>
-            <div style={{ marginTop: 10, fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.25, letterSpacing: -0.4, maxWidth: 220 }}>
-              {featured.title}
+
+          {/* Category sections */}
+          {visible.length === 0 ? (
+            <div style={{
+              marginTop: 36, textAlign: 'center', color: OTTI.ink3, fontSize: 14, lineHeight: 1.5,
+            }}>
+              No articles match <strong style={{ color: OTTI.ink }}>"{query}"</strong>.
+              <div style={{ marginTop: 4, fontSize: 12 }}>Try a different search term.</div>
             </div>
-            <div style={{ marginTop: 12, fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{featured.read}</div>
-          </div>
-        </div>
+          ) : (
+            visible.map(cat => (
+              <div key={cat.id} style={{ marginTop: 24 }}>
+                <div style={{
+                  fontSize: 12, fontWeight: 700, color: OTTI.ink3,
+                  letterSpacing: 0.6, textTransform: 'uppercase', padding: '0 4px',
+                }}>{cat.name}</div>
+                <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  {cat.articles.map(a => (
+                    <article
+                      key={a.id}
+                      onClick={() => nav('articleDetail')}
+                      style={{
+                        background: '#fff', borderRadius: 20, overflow: 'hidden',
+                        border: `1px solid ${OTTI.lineSolid}`,
+                        boxShadow: '0 2px 10px rgba(12,33,80,0.05)',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {/* Hero image with neutral background while loading */}
+                      <div style={{
+                        width: '100%', height: 180, background: OTTI.navyTint,
+                        position: 'relative', overflow: 'hidden',
+                      }}>
+                        <img
+                          src={a.image}
+                          alt={a.title}
+                          loading="lazy"
+                          onError={(e) => {
+                            // graceful fallback if Unsplash blocks/rate-limits
+                            e.currentTarget.src = `https://picsum.photos/seed/${a.id}/720/420`;
+                          }}
+                          style={{
+                            width: '100%', height: '100%', objectFit: 'cover', display: 'block',
+                          }}
+                        />
+                      </div>
 
-        <div style={{ marginTop: 16, fontSize: 12, fontWeight: 700, color: OTTI.ink3, letterSpacing: 0.6, textTransform: 'uppercase', padding: '0 4px' }}>For Mia, age 4</div>
-        <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {articles.map((a, i) => (
-            <div key={i} onClick={() => nav('articleDetail')} style={{ background: '#fff', borderRadius: 16, padding: 12, border: `1px solid ${OTTI.lineSolid}`, display: 'flex', gap: 12, alignItems: 'center', cursor: 'pointer' }}>
-              <div style={{ width: 56, height: 56, borderRadius: 12, background: a.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <div style={{ width: 18, height: 18, borderRadius: 4, background: 'rgba(255,255,255,0.7)' }} />
+                      {/* Card body */}
+                      <div style={{ padding: '14px 16px 16px' }}>
+                        <div style={{
+                          display: 'inline-block', padding: '4px 10px', borderRadius: 999,
+                          background: cat.pillBg, color: cat.pillFg,
+                          fontSize: 11, fontWeight: 700, letterSpacing: 0.3,
+                        }}>{cat.name}</div>
+                        <div style={{
+                          marginTop: 8, fontSize: 17, fontWeight: 700,
+                          color: OTTI.navyDeep, lineHeight: 1.3, letterSpacing: -0.2,
+                        }}>{a.title}</div>
+                        {a.readMin != null && (
+                          <div style={{ marginTop: 6, fontSize: 12, color: OTTI.ink3 }}>
+                            {a.readMin} min read
+                          </div>
+                        )}
+                      </div>
+                    </article>
+                  ))}
+                </div>
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: OTTI.ink3, letterSpacing: 0.4, textTransform: 'uppercase' }}>{a.cat}</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: OTTI.ink, marginTop: 2, lineHeight: 1.3 }}>{a.title}</div>
-                <div style={{ fontSize: 11, color: OTTI.ink3, marginTop: 4 }}>{a.read} read</div>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
+        <div style={{ height: 110 }} />
       </div>
-      <div style={{ height: 100 }} />
+
       <TabBar active="read" nav={nav} />
     </Phone>
   );
