@@ -2594,7 +2594,9 @@ function ScreenNotifPrefs({ nav }) {
 
   return (
     <Phone bg={OTTI.cream}>
-      <Header title="Notifications" onBack={() => nav('profile')} />
+      {/* Back routes to Home (Today tab) — distinct from the other
+          settings sub-screens which return to Profile. */}
+      <Header title="Notifications" onBack={() => nav('home')} />
       <div style={{ position: 'absolute', top: 96, bottom: 0, left: 0, right: 0, overflow: 'auto' }}>
         <div style={{ padding: '0 20px' }}>
           {/* — Otti reminders — configurable list ———————————— */}
