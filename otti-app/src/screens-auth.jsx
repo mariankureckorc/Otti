@@ -28,7 +28,7 @@ function ScreenSplash({ nav }) {
       </div>
 
       <div style={{ position: 'absolute', bottom: 64, left: 24, right: 24, zIndex: 2 }}>
-        <Btn kind="accent" onClick={() => nav('childProfile')}>Get started</Btn>
+        <Btn kind="accent" onClick={() => nav('signupStep1')}>Get started</Btn>
         <div style={{ textAlign: 'center', marginTop: 14, color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>
           Already with us?{' '}
           <span onClick={() => nav('signIn')} style={{ color: '#fff', fontWeight: 700, cursor: 'pointer' }}>

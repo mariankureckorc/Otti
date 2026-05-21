@@ -6,8 +6,11 @@ const SCREEN_REGISTRY = [
   { id: 'splash',           label: '01 · Splash',                 group: 'Auth & onboarding',  C: ScreenSplash },
   { id: 'signIn',           label: '02 · Sign in',                group: 'Auth & onboarding',  C: ScreenSignIn },
   { id: 'blocked',          label: '03 · Blocked login',          group: 'Auth & onboarding',  C: ScreenBlocked },
-  { id: 'childProfile',     label: '04 · Child profile setup',    group: 'Auth & onboarding',  C: ScreenChildProfile },
-  { id: 'invite',           label: '05 · Invite second parent',   group: 'Auth & onboarding',  C: ScreenInvitePartner },
+  { id: 'signupStep1',      label: '04 · Sign up — Step 1',       group: 'Auth & onboarding',  C: ScreenSignupStep1 },
+  { id: 'signupStep2',      label: '05 · Sign up — Step 2',       group: 'Auth & onboarding',  C: ScreenSignupStep2 },
+  { id: 'verifyWaiting',    label: '06 · Verifying account',      group: 'Auth & onboarding',  C: ScreenVerifyWaiting },
+  { id: 'childProfile',     label: '07 · Child profile (legacy)', group: 'Auth & onboarding',  C: ScreenChildProfile },
+  { id: 'invite',           label: '08 · Invite second parent',   group: 'Auth & onboarding',  C: ScreenInvitePartner },
 
   { id: 'home',             label: '06 · Home / Today',           group: 'Daily use',          C: ScreenHome },
   { id: 'logSession',       label: '07 · Log session',            group: 'Daily use',          C: ScreenLogSession },

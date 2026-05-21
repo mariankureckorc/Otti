@@ -3,15 +3,17 @@
 // 06 — Home / Today
 function ScreenHome({ nav }) {
   const pct = 72;
+  const { active } = useChildren();
+  const weekday = new Date().toLocaleDateString('en-GB', { weekday: 'long' });
   return (
     <Phone bg={OTTI.cream}>
       <div style={{ paddingTop: 64, padding: '64px 20px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div onClick={() => nav('profile')} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
-            <div style={{ width: 44, height: 44, borderRadius: 22, background: OTTI.sunSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: OTTI.navyDeep }}>M</div>
+            <div style={{ width: 44, height: 44, borderRadius: 22, background: OTTI.sunSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: OTTI.navyDeep }}>{active.name[0]}</div>
             <div>
               <div style={{ fontSize: 12, color: OTTI.ink3, fontWeight: 500 }}>Good morning, Sam</div>
-              <div style={{ fontSize: 17, fontWeight: 700, color: OTTI.navyDeep, marginTop: -1 }}>Mia · Thursday</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: OTTI.navyDeep, marginTop: -1 }}>{active.name} · {weekday}</div>
             </div>
           </div>
           <button onClick={() => nav('notifPrefs')} style={{
@@ -30,7 +32,7 @@ function ScreenHome({ nav }) {
             <div style={{ fontSize: 56, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -2, lineHeight: 1, marginTop: 4 }}>
               7<span style={{ fontSize: 28, fontWeight: 700 }}>h</span> 12<span style={{ fontSize: 28, fontWeight: 700 }}>m</span>
             </div>
-            <div style={{ fontSize: 13, color: OTTI.ink3, marginTop: 4 }}>of 10h goal · <span style={{ color: OTTI.greenDark, fontWeight: 700 }}>{pct}%</span></div>
+            <div style={{ fontSize: 13, color: OTTI.ink3, marginTop: 4 }}>of {fmtHm(active.goalMinutes)} goal · <span style={{ color: OTTI.greenDark, fontWeight: 700 }}>{pct}%</span></div>
           </div>
           <div style={{ position: 'absolute', right: 24, top: 4 }}>
             <Mascot size={86} />
@@ -40,7 +42,7 @@ function ScreenHome({ nav }) {
         <div style={{ marginTop: 4, background: '#fff', borderRadius: 20, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, border: `1px solid ${OTTI.lineSolid}` }}>
           <div style={{ width: 8, height: 8, borderRadius: 4, background: OTTI.green, flexShrink: 0 }} />
           <div style={{ flex: 1, fontSize: 14, color: OTTI.ink, fontWeight: 500, lineHeight: 1.4 }}>
-            <strong>Almost there.</strong> Just under 3 hours to hit Mia's goal today.
+            <strong>Almost there.</strong> Just under 3 hours to hit {active.name}'s goal today.
           </div>
         </div>
 
