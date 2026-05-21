@@ -2,8 +2,13 @@
 
 // 06 — Home / Today
 function ScreenHome({ nav }) {
-  const pct = 72;
   const { active } = useChildren();
+  // Sample wear-time for today, in minutes. Single source of truth for
+  // both the hero percentage and the secondary elapsed-time line — they
+  // can never drift out of sync.
+  const TODAY_ELAPSED_MIN = 432;
+  const goalMin = Math.max(1, active.goalMinutes || 0);
+  const pct = Math.max(0, Math.round((TODAY_ELAPSED_MIN / goalMin) * 100));
   const weekday = new Date().toLocaleDateString('en-GB', { weekday: 'long' });
   return (
     <Phone bg={OTTI.cream}>
@@ -29,10 +34,16 @@ function ScreenHome({ nav }) {
           <Ring size={264} stroke={20} pct={pct} color={OTTI.green} track={OTTI.navyTint} />
           <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: OTTI.ink3, letterSpacing: 0.4, textTransform: 'uppercase' }}>Today</div>
-            <div style={{ fontSize: 56, fontWeight: 800, color: OTTI.navyDeep, letterSpacing: -2, lineHeight: 1, marginTop: 4 }}>
-              7<span style={{ fontSize: 28, fontWeight: 700 }}>h</span> 12<span style={{ fontSize: 28, fontWeight: 700 }}>m</span>
+            {/* Percentage is the hero — accent green digits, slightly larger than the previous time hero. */}
+            <div style={{
+              fontSize: 64, fontWeight: 800, color: OTTI.greenDark,
+              letterSpacing: -2, lineHeight: 1, marginTop: 4,
+              fontVariantNumeric: 'tabular-nums',
+            }}>{pct}%</div>
+            {/* Secondary line — elapsed of goal, muted. */}
+            <div style={{ fontSize: 13, color: OTTI.ink3, marginTop: 6 }}>
+              {fmtHm(TODAY_ELAPSED_MIN)} of {fmtHm(active.goalMinutes)} goal
             </div>
-            <div style={{ fontSize: 13, color: OTTI.ink3, marginTop: 4 }}>of {fmtHm(active.goalMinutes)} goal · <span style={{ color: OTTI.greenDark, fontWeight: 700 }}>{pct}%</span></div>
           </div>
           <div style={{ position: 'absolute', right: 24, top: 4 }}>
             <Mascot size={86} />
